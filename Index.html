@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>ServiceHub – Home Services at Your Doorstep</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Sora:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      fontFamily: { sans: ['Plus Jakarta Sans','sans-serif'], display: ['Sora','sans-serif'] },
+      colors: {
+        brand: { 50:'#f0fdf9', 100:'#ccfbee', 200:'#99f5dd', 300:'#5eeac8', 400:'#28d4ad', 500:'#10b88f', 600:'#0a9272', 700:'#087358', 800:'#075f49', 900:'#064d3c' },
+        accent: { 50:'#fff7ed', 100:'#ffedd5', 200:'#fed7aa', 300:'#fdba74', 400:'#fb923c', 500:'#f97316', 600:'#ea6c0e', 700:'#c2570b', 800:'#9a4209', 900:'#7c3508' },
+        slate2: { 50:'#f8fafc', 100:'#f1f5f9', 200:'#e2e8f0', 300:'#cbd5e1', 400:'#94a3b8', 500:'#64748b', 600:'#475569', 700:'#334155', 800:'#1e293b', 900:'#0f172a' }
+      },
+      animation: {
+        'slide-in-left': 'slideInLeft 0.6s ease forwards',
+        'slide-in-right': 'slideInRight 0.6s ease forwards',
+        'fade-up': 'fadeUp 0.5s ease forwards',
+        'pulse-dot': 'pulseDot 2s ease-in-out infinite',
+        'float': 'floatAnim 4s ease-in-out infinite',
+        'spin-slow': 'spin 20s linear infinite',
+      },
+      keyframes: {
+        slideInLeft: { from:{ opacity:0, transform:'translateX(-30px)' }, to:{ opacity:1, transform:'translateX(0)' } },
+        slideInRight: { from:{ opacity:0, transform:'translateX(30px)' }, to:{ opacity:1, transform:'translateX(0)' } },
+        fadeUp: { from:{ opacity:0, transform:'translateY(20px)' }, to:{ opacity:1, transform:'translateY(0)' } },
+        pulseDot: { '0%,100%':{ transform:'scale(1)', opacity:1 }, '50%':{ transform:'scale(1.5)', opacity:.6 } },
+        floatAnim: { '0%,100%':{ transform:'translateY(0)' }, '50%':{ transform:'translateY(-10px)' } },
+      },
+      boxShadow: {
+        'card': '0 2px 20px rgba(0,0,0,0.06)',
+        'card-hover': '0 8px 40px rgba(0,0,0,0.12)',
+        'brand': '0 4px 20px rgba(10,146,114,0.3)',
+        'accent': '0 4px 20px rgba(249,115,22,0.3)',
+      }
+    }
+  }
+}
+</script>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{font-family:'Plus Jakarta Sans',sans-serif;background:#f8fafc;color:#1e293b;overflow-x:hidden}
+  ::-webkit-scrollbar{width:5px}
+  ::-webkit-scrollbar-track{background:#f1f5f9}
+  ::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:3px}
+
+  /* HERO SLIDER */
+  .hero-slide{position:absolute;inset:0;opacity:0;transition:opacity 0.9s cubic-bezier(0.4,0,0.2,1);will-change:opacity}
+  .hero-slide.active{opacity:1}
+  .hero-slide.active .slide-content>*{animation:fadeUp 0.7s ease forwards}
+  .hero-slide.active .slide-content>*:nth-child(1){animation-delay:0.1s;opacity:0}
+  .hero-slide.active .slide-content>*:nth-child(2){animation-delay:0.2s;opacity:0}
+  .hero-slide.active .slide-content>*:nth-child(3){animation-delay:0.3s;opacity:0}
+  .hero-slide.active .slide-content>*:nth-child(4){animation-delay:0.4s;opacity:0}
+  .hero-slide.active .slide-content>*:nth-child(5){animation-delay:0.5s;opacity:0}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+
+  /* PROGRESS BAR */
+  .slide-progress{height:3px;background:rgba(255,255,255,0.25);border-radius:2px;overflow:hidden;flex:1}
+  .slide-progress-bar{height:100%;background:#10b88f;border-radius:2px;width:0%;transition:width 0.1s linear}
+  .slide-progress-bar.running{width:100%;transition:width 5s linear}
+
+  /* CARD HOVER */
+  .srv-card{transition:transform 0.3s ease, box-shadow 0.3s ease}
+  .srv-card:hover{transform:translateY(-6px);box-shadow:0 12px 40px rgba(0,0,0,0.13)}
+  .img-zoom img{transition:transform 0.5s ease}
+  .img-zoom:hover img{transform:scale(1.07)}
+
+  /* MODAL */
+  .modal-wrap{position:fixed;inset:0;background:rgba(15,23,42,0.55);z-index:1000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(5px);padding:16px}
+  .modal-wrap.open{display:flex}
+  .modal-box{animation:modalIn 0.32s cubic-bezier(0.34,1.56,0.64,1)}
+  @keyframes modalIn{from{transform:scale(0.86) translateY(18px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}
+
+  /* NAV UNDERLINE */
+  .nav-link{position:relative}
+  .nav-link::after{content:'';position:absolute;bottom:-2px;left:0;width:0;height:2px;background:#10b88f;transition:width 0.3s ease}
+  .nav-link:hover::after{width:100%}
+
+  /* STEP LINE */
+  .step-connector{position:absolute;top:20px;left:calc(50% + 24px);right:calc(-50% + 24px);height:2px;background:#e2e8f0;z-index:0}
+  .step-connector.done{background:#10b88f}
+
+  /* CUSTOM CHECKBOX */
+  .cat-chip{cursor:pointer;user-select:none}
+  .cat-chip input:checked+span{background:#0a9272;color:#fff;border-color:#0a9272}
+
+  /* TOAST */
+  #toast{transform:translateX(-50%) translateY(80px);transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1)}
+  #toast.show{transform:translateX(-50%) translateY(0)}
+
+  /* LAZYLOAD */
+  img[loading=lazy]{background:#e2e8f0}
+</style>
+</head>
+<body class="bg-slate2-50">
+
+<!-- ===== TOAST ===== -->
+<div id="toast" class="fixed bottom-6 left-1/2 z-[9999] bg-slate2-900 text-white px-5 py-3 rounded-full text-sm font-semibold flex items-center gap-2.5 shadow-2xl whitespace-nowrap pointer-events-none">
+  <span class="w-2 h-2 rounded-full bg-brand-400 animate-pulse-dot"></span>
+  <span id="toastMsg">Done</span>
+</div>
+
+<!-- ===== AUTH MODAL ===== -->
+<div class="modal-wrap" id="authModal">
+  <div class="modal-box bg-white rounded-2xl w-full max-w-md overflow-hidden shadow-2xl relative">
+    <div class="h-40 relative overflow-hidden">
+      <img src="https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=700&q=80" class="w-full h-full object-cover" alt="service"/>
+      <div class="absolute inset-0 bg-gradient-to-br from-brand-700/90 to-slate2-900/80 flex flex-col items-center justify-center gap-1">
+        <div class="font-display text-3xl font-bold text-white">Service<span class="text-accent-400">Hub</span></div>
+        <div class="text-xs text-white/70 font-semibold tracking-widest uppercase">Home Services at Your Doorstep</div>
+      </div>
+    </div>
+    <button onclick="closeModal('authModal')" class="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/20 text-white hover:bg-white/40 flex items-center justify-center text-lg transition-all">✕</button>
+    <div class="p-7">
+      <div class="flex bg-slate2-100 rounded-xl p-1 mb-6">
+        <button id="tab-login" class="flex-1 py-2 rounded-lg text-sm font-bold transition-all bg-white text-slate2-900 shadow-card" onclick="switchTab('login')">Sign In</button>
+        <button id="tab-signup" class="flex-1 py-2 rounded-lg text-sm font-bold transition-all text-slate2-400" onclick="switchTab('signup')">Create Account</button>
+      </div>
+      <!-- LOGIN -->
+      <div id="form-login">
+        <div class="mb-4"><label class="block text-xs font-bold text-slate2-500 uppercase tracking-wider mb-1.5">Email Address</label><input id="li-email" type="email" placeholder="you@example.com" class="w-full border-2 border-slate2-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-brand-500 transition-colors bg-slate2-50 focus:bg-white"/></div>
+        <div class="mb-2"><label class="block text-xs font-bold text-slate2-500 uppercase tracking-wider mb-1.5">Password</label><input id="li-pass" type="password" placeholder="Enter password" class="w-full border-2 border-slate2-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-brand-500 transition-colors bg-slate2-50 focus:bg-white"/></div>
+        <div class="text-right mb-4"><span class="text-xs text-accent-500 font-bold cursor-pointer hover:underline" onclick="showToast('📧 Reset link sent!')">Forgot Password?</span></div>
+        <button onclick="doLogin()" class="w-full bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-700 hover:to-brand-600 text-white font-bold py-3.5 rounded-xl transition-all hover:-translate-y-0.5 hover:shadow-brand text-sm">Sign In to ServiceHub</button>
+        <div class="flex items-center gap-3 my-4"><div class="flex-1 h-px bg-slate2-200"></div><span class="text-xs text-slate2-400 font-semibold">or</span><div class="flex-1 h-px bg-slate2-200"></div></div>
+        <button onclick="doGoogleLogin()" class="w-full flex items-center justify-center gap-3 border-2 border-slate2-200 rounded-xl py-3 text-sm font-bold text-slate2-700 hover:border-blue-400 hover:bg-blue-50 transition-all">
+          <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+          Continue with Google
+        </button>
+        <p class="text-center text-xs text-slate2-400 mt-4">No account? <span class="text-brand-600 font-bold cursor-pointer hover:underline" onclick="switchTab('signup')">Sign up free</span></p>
+      </div>
+      <!-- SIGNUP -->
+      <div id="form-signup" class="hidden">
+        <div class="grid grid-cols-2 gap-3 mb-3">
+          <div><label class="block text-xs font-bold text-slate2-500 uppercase tracking-wider mb-1.5">First Name</label><input id="su-fn" placeholder="Rahul" class="w-full border-2 border-slate2-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-brand-500 transition-colors bg-slate2-50 focus:bg-white"/></div>
+          <div><label class="block text-xs font-bold text-slate2-500 uppercase tracking-wider mb-1.5">Last Name</label><input id="su-ln" placeholder="Sharma" class="w-full border-2 border-slate2-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-brand-500 transition-colors bg-slate2-50 focus:bg-white"/></div>
+        </div>
+        <div class="mb-3"><label class="block text-xs font-bold text-slate2-500 uppercase tracking-wider mb-1.5">Email</label><input id="su-email" type="email" placeholder="you@example.com" class="w-full border-2 border-slate2-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-brand-500 transition-colors bg-slate2-50 focus:bg-white"/></div>
+        <div class="mb-3"><label class="block text-xs font-bold text-slate2-500 uppercase tracking-wider mb-1.5">Phone</label>
+          <div class="flex"><span class="bg-slate2-100 border-2 border-r-0 border-slate2-200 rounded-l-xl px-3 py-3 text-sm font-bold text-slate2-600">🇮🇳 +91</span><input id="su-ph" type="tel" maxlength="10" placeholder="98xxxxxxxx" oninput="this.value=this.value.replace(/\D/g,'')" class="flex-1 border-2 border-slate2-200 rounded-r-xl px-4 py-3 text-sm outline-none focus:border-brand-500 transition-colors bg-slate2-50 focus:bg-white"/></div>
+        </div>
+        <div class="mb-4"><label class="block text-xs font-bold text-slate2-500 uppercase tracking-wider mb-1.5">Password</label><input id="su-pw" type="password" placeholder="Min 6 characters" class="w-full border-2 border-slate2-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-brand-500 transition-colors bg-slate2-50 focus:bg-white"/></div>
+        <button onclick="doSignup()" class="w-full bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-700 hover:to-brand-600 text-white font-bold py-3.5 rounded-xl transition-all hover:-translate-y-0.5 hover:shadow-brand text-sm">Create My Account 🚀</button>
+        <p class="text-center text-xs text-slate2-400 mt-4">Have an account? <span class="text-brand-600 font-bold cursor-pointer hover:underline" onclick="switchTab('login')">Sign in</span></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== BOOKING MODAL ===== -->
+<div class="modal-wrap" id="bookModal">
+  <div class="modal-box bg-white rounded-2xl w-full max-w-2xl shadow-2xl relative overflow-hidden" style="max-height:90vh;overflow-y:auto">
+    <div class="bg-gradient-to-r from-brand-700 to-brand-500 px-7 py-5 relative">
+      <button onclick="closeModal('bookModal')" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/20 text-white hover:bg-white/40 flex items-center justify-center text-lg transition-all z-10">✕</button>
+      <h2 id="bookTitle" class="font-display text-xl font-bold text-white">Book Service</h2>
+      <p id="bookSub" class="text-brand-100 text-sm mt-0.5">Fill details to confirm booking</p>
+    </div>
+    <!-- STEPS -->
+    <div class="flex items-center px-7 py-4 bg-slate2-50 border-b border-slate2-200 gap-1" id="stepsBar"></div>
+    <!-- BODY -->
+    <div class="p-7">
+      <div id="bstep1" class="book-step">
+        <p class="text-xs font-bold text-slate2-500 uppercase tracking-widest mb-4">Choose Service Type</p>
+        <div class="grid grid-cols-2 gap-3" id="subServiceOpts"></div>
+        <div class="flex gap-3 mt-6"><button onclick="bNext(1)" class="flex-1 bg-brand-600 hover:bg-brand-700 text-white font-bold py-3 rounded-xl text-sm transition-all hover:-translate-y-0.5">Continue →</button></div>
+      </div>
+      <div id="bstep2" class="book-step hidden">
+        <p class="text-xs font-bold text-slate2-500 uppercase tracking-widest mb-4">Pick Date & Time</p>
+        <div class="grid grid-cols-4 gap-2 mb-5" id="dateGrid"></div>
+        <p class="text-xs font-bold text-slate2-500 uppercase tracking-widest mb-3">Available Slots</p>
+        <div class="grid grid-cols-4 gap-2 mb-2" id="timeGrid"></div>
+        <div class="flex gap-3 mt-6"><button onclick="bPrev(2)" class="flex-1 bg-slate2-100 hover:bg-slate2-200 text-slate2-700 font-bold py-3 rounded-xl text-sm transition-all">← Back</button><button onclick="bNext(2)" class="flex-2 bg-brand-600 hover:bg-brand-700 text-white font-bold py-3 rounded-xl text-sm transition-all hover:-translate-y-0.5 px-8">Continue →</button></div>
+      </div>
+      <div id="bstep3" class="book-step hidden">
+        <p class="text-xs font-bold text-slate2-500 uppercase tracking-widest mb-4">Select Professional</p>
+        <div class="grid grid-cols-2 gap-3" id="proGrid"></div>
+        <div class="flex gap-3 mt-6"><button onclick="bPrev(3)" class="flex-1 bg-slate2-100 hover:bg-slate2-200 text-slate2-700 font-bold py-3 rounded-xl text-sm transition-all">← Back</button><button onclick="bNext(3)" class="flex-2 bg-brand-600 hover:bg-brand-700 text-white font-bold py-3 rounded-xl text-sm transition-all hover:-translate-y-0.5 px-8">Continue →</button></div>
+      </div>
+      <div id="bstep4" class="book-step hidden">
+        <p class="text-xs font-bold text-slate2-500 uppercase tracking-widest mb-4">Service Address</p>
+        <div class="space-y-3">
+          <div><label class="block text-xs font-bold text-slate2-500 mb-1.5">Full Name</label><input id="a-name" placeholder="Your full name" class="w-full border-2 border-slate2-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-brand-500 bg-slate2-50 focus:bg-white transition-colors"/></div>
+          <div class="grid grid-cols-2 gap-3">
+            <div><label class="block text-xs font-bold text-slate2-500 mb-1.5">Phone</label><input id="a-ph" type="tel" placeholder="Phone number" oninput="this.value=this.value.replace(/\D/g,'')" class="w-full border-2 border-slate2-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-brand-500 bg-slate2-50 focus:bg-white transition-colors"/></div>
+            <div><label class="block text-xs font-bold text-slate2-500 mb-1.5">Pincode</label><input id="a-pin" maxlength="6" placeholder="6-digit pincode" oninput="this.value=this.value.replace(/\D/g,'')" class="w-full border-2 border-slate2-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-brand-500 bg-slate2-50 focus:bg-white transition-colors"/></div>
+          </div>
+          <div><label class="block text-xs font-bold text-slate2-500 mb-1.5">House / Flat No.</label><input id="a-flat" placeholder="B-204, Sunshine Apartments" class="w-full border-2 border-slate2-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-brand-500 bg-slate2-50 focus:bg-white transition-colors"/></div>
+          <div><label class="block text-xs font-bold text-slate2-500 mb-1.5">Street / Area</label><input id="a-street" placeholder="MG Road, Koramangala" class="w-full border-2 border-slate2-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-brand-500 bg-slate2-50 focus:bg-white transition-colors"/></div>
+          <div class="grid grid-cols-2 gap-3">
+            <div><label class="block text-xs font-bold text-slate2-500 mb-1.5">City</label><input id="a-city" placeholder="Ranchi" class="w-full border-2 border-slate2-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-brand-500 bg-slate2-50 focus:bg-white transition-colors"/></div>
+            <div><label class="block text-xs font-bold text-slate2-500 mb-1.5">State</label><select id="a-state" class="w-full border-2 border-slate2-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-brand-500 bg-slate2-50 focus:bg-white transition-colors"><option value="">Select State</option><option>Jharkhand</option><option>Delhi</option><option>Maharashtra</option><option>Karnataka</option><option>Tamil Nadu</option><option>Uttar Pradesh</option><option>Gujarat</option><option>West Bengal</option></select></div>
+          </div>
+        </div>
+        <div class="flex gap-3 mt-6"><button onclick="bPrev(4)" class="flex-1 bg-slate2-100 hover:bg-slate2-200 text-slate2-700 font-bold py-3 rounded-xl text-sm transition-all">← Back</button><button onclick="bNext(4)" class="flex-2 bg-brand-600 hover:bg-brand-700 text-white font-bold py-3 rounded-xl text-sm transition-all hover:-translate-y-0.5 px-8">Continue →</button></div>
+      </div>
+      <div id="bstep5" class="book-step hidden">
+        <p class="text-xs font-bold text-slate2-500 uppercase tracking-widest mb-4">Order Summary</p>
+        <div class="bg-slate2-50 rounded-xl p-4 mb-5 border border-slate2-200" id="bookSummary"></div>
+        <p class="text-xs font-bold text-slate2-500 uppercase tracking-widest mb-3">Payment Method</p>
+        <div class="grid grid-cols-2 gap-3 mb-2">
+          <div id="pay-upi" onclick="selPay('upi')" class="pay-opt flex items-center gap-3 p-3.5 border-2 border-brand-500 bg-brand-50 rounded-xl cursor-pointer transition-all"><span class="text-xl">📱</span><div><div class="text-sm font-bold">UPI</div><div class="text-xs text-slate2-400">GPay, PhonePe</div></div></div>
+          <div id="pay-card" onclick="selPay('card')" class="pay-opt flex items-center gap-3 p-3.5 border-2 border-slate2-200 rounded-xl cursor-pointer hover:border-brand-400 transition-all"><span class="text-xl">💳</span><div><div class="text-sm font-bold">Card</div><div class="text-xs text-slate2-400">Visa / Mastercard</div></div></div>
+          <div id="pay-cash" onclick="selPay('cash')" class="pay-opt flex items-center gap-3 p-3.5 border-2 border-slate2-200 rounded-xl cursor-pointer hover:border-brand-400 transition-all"><span class="text-xl">💵</span><div><div class="text-sm font-bold">Cash</div><div class="text-xs text-slate2-400">Pay on service</div></div></div>
+          <div id="pay-wallet" onclick="selPay('wallet')" class="pay-opt flex items-center gap-3 p-3.5 border-2 border-slate2-200 rounded-xl cursor-pointer hover:border-brand-400 transition-all"><span class="text-xl">👛</span><div><div class="text-sm font-bold">Wallet</div><div class="text-xs text-slate2-400">ServiceHub Pay</div></div></div>
+        </div>
+        <div class="flex gap-3 mt-6"><button onclick="bPrev(5)" class="flex-1 bg-slate2-100 hover:bg-slate2-200 text-slate2-700 font-bold py-3 rounded-xl text-sm transition-all">← Back</button><button onclick="placeOrder()" class="flex-2 bg-gradient-to-r from-brand-600 to-accent-500 hover:from-brand-700 hover:to-accent-600 text-white font-bold py-3 rounded-xl text-sm transition-all hover:-translate-y-0.5 px-8 shadow-brand">✓ Place Order</button></div>
+      </div>
+      <div id="bstep6" class="book-step hidden text-center py-6">
+        <div class="w-20 h-20 rounded-full bg-gradient-to-br from-brand-500 to-brand-400 flex items-center justify-center text-4xl mx-auto mb-4 shadow-brand animate-float">✓</div>
+        <h3 class="font-display text-2xl font-bold text-slate2-900 mb-2">Booking Confirmed! 🎉</h3>
+        <p class="text-slate2-500 text-sm mb-5 leading-relaxed">Your professional is on the way. You'll receive a confirmation SMS shortly.</p>
+        <div class="inline-flex items-center gap-3 bg-slate2-50 border border-slate2-200 rounded-xl px-5 py-3 mb-6">
+          <div><div class="text-xs text-slate2-400 font-bold uppercase tracking-wider">Order ID</div><div class="text-brand-600 font-bold text-lg" id="orderIdDisplay">#SH1001</div></div><span class="text-2xl">📋</span>
+        </div>
+        <br/>
+        <button onclick="closeAndDash()" class="bg-brand-600 hover:bg-brand-700 text-white font-bold py-3 px-8 rounded-xl text-sm transition-all hover:-translate-y-0.5 shadow-brand">View in Dashboard →</button>
+        <br/><button onclick="closeModal('bookModal')" class="mt-3 text-slate2-400 text-sm cursor-pointer hover:text-slate2-600 transition-colors bg-transparent border-none">Back to Home</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== HEADER ===== -->
+<header class="bg-white sticky top-0 z-[200] border-b border-slate2-200 shadow-sm" id="mainHeader">
+  <div class="max-w-7xl mx-auto flex items-center gap-4 px-5 py-3.5">
+    <a href="#" onclick="showMain()" class="font-display text-2xl font-bold text-slate2-900 shrink-0">Service<span class="text-brand-600">Hub</span></a>
+    <button onclick="showToast('📍 Location picker coming soon')" class="hidden md:flex items-center gap-2 border-2 border-slate2-200 hover:border-brand-500 rounded-xl px-3 py-2 text-sm transition-all shrink-0 group">
+      <span class="text-base">📍</span>
+      <div class="text-left"><div class="text-[10px] text-slate2-400 font-bold uppercase tracking-wider">Deliver to</div><div class="text-sm font-bold text-slate2-800 max-w-[120px] truncate">Ranchi, Jharkhand</div></div>
+      <span class="text-slate2-300 text-xs">▾</span>
+    </button>
+    <div class="flex-1 flex items-center bg-slate2-50 border-2 border-slate2-200 focus-within:border-brand-500 focus-within:bg-white rounded-xl overflow-hidden transition-all">
+      <span class="px-3 text-slate2-400 text-lg">🔍</span>
+      <input id="srchInp" placeholder='Search "AC repair", "cleaning", "plumber"…' class="flex-1 border-none bg-transparent py-2.5 text-sm text-slate2-800 outline-none placeholder-slate2-400"/>
+      <button onclick="doSearch()" class="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2.5 text-sm font-bold transition-colors whitespace-nowrap">Search</button>
+    </div>
+    <div class="flex items-center gap-2 shrink-0">
+      <button onclick="openAuth()" id="acctBtn" class="flex flex-col items-center gap-0.5 hover:bg-slate2-50 px-3 py-2 rounded-xl transition-colors text-slate2-600 hover:text-brand-600">
+        <span class="text-xl" id="acctIco">👤</span><span class="text-[10px] font-bold" id="acctLbl">Account</span>
+      </button>
+      <button onclick="goToDash('orders')" class="hidden sm:flex flex-col items-center gap-0.5 hover:bg-slate2-50 px-3 py-2 rounded-xl transition-colors text-slate2-600">
+        <span class="text-xl">📋</span><span class="text-[10px] font-bold">Orders</span>
+      </button>
+      <button onclick="openBookingQuick()" class="bg-brand-600 hover:bg-brand-700 text-white font-bold px-4 py-2.5 rounded-xl text-sm transition-all hover:-translate-y-0.5 hover:shadow-brand">Book Service</button>
+    </div>
+  </div>
+</header>
+
+<!-- ===== MAIN SITE ===== -->
+<div id="mainSite">
+
+<!-- HERO SLIDER -->
+<section class="relative h-[380px] md:h-[440px] overflow-hidden select-none" id="heroSection">
+  <!-- SLIDES -->
+  <div id="slide0" class="hero-slide active">
+    <img src="https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=1600&q=85" class="w-full h-full object-cover object-center" loading="eager" alt="Home Cleaning"/>
+    <div class="absolute inset-0 bg-gradient-to-r from-slate2-900/88 via-slate2-900/60 to-transparent"></div>
+    <div class="absolute inset-0 flex items-center"><div class="max-w-7xl mx-auto px-5 md:px-10 w-full slide-content">
+      <div class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-1.5 text-white/90 text-xs font-bold tracking-widest uppercase mb-3"><span class="w-2 h-2 bg-brand-400 rounded-full animate-pulse-dot"></span>50,000+ Happy Customers</div>
+      <h1 class="font-display text-2xl md:text-3xl font-bold text-white leading-tight mb-3 max-w-xl">Expert <span class="text-brand-400">Home Cleaning</span><br/>at Your Door</h1>
+      <p class="text-white/65 text-sm mb-5 max-w-md leading-relaxed">Professional deep cleaning with certified experts. Book in minutes, we handle the rest.</p>
+      <div class="flex flex-wrap gap-3"><button onclick="openBooking('cleaning')" class="bg-brand-500 hover:bg-brand-400 text-white font-bold px-5 py-2.5 rounded-xl text-sm transition-all hover:-translate-y-1 hover:shadow-brand flex items-center gap-2">🧹 Book Cleaning</button><button onclick="scrollToSvcs()" class="bg-white/12 backdrop-blur-sm border border-white/25 text-white font-bold px-5 py-2.5 rounded-xl text-sm transition-all hover:bg-white/20 flex items-center gap-2">Explore Services</button></div>
+    </div></div>
+  </div>
+  <div id="slide1" class="hero-slide">
+    <img src="https://images.unsplash.com/photo-1621905252507-b35492cc74b4?w=1600&q=85" class="w-full h-full object-cover" loading="lazy" alt="AC Service"/>
+    <div class="absolute inset-0 bg-gradient-to-r from-slate2-900/88 via-slate2-900/60 to-transparent"></div>
+    <div class="absolute inset-0 flex items-center"><div class="max-w-7xl mx-auto px-5 md:px-10 w-full slide-content">
+      <div class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-1.5 text-white/90 text-xs font-bold tracking-widest uppercase mb-3"><span class="w-2 h-2 bg-accent-400 rounded-full animate-pulse-dot"></span>Same-Day Service Available</div>
+      <h1 class="font-display text-2xl md:text-3xl font-bold text-white leading-tight mb-3 max-w-xl">AC Repair &<br/><span class="text-accent-400">Service</span> Made Easy</h1>
+      <p class="text-white/65 text-sm mb-5 max-w-md leading-relaxed">Gas refill, deep clean, repair & installation. Certified technicians. Transparent pricing.</p>
+      <div class="flex flex-wrap gap-3"><button onclick="openBooking('ac')" class="bg-accent-500 hover:bg-accent-400 text-white font-bold px-5 py-2.5 rounded-xl text-sm transition-all hover:-translate-y-1 hover:shadow-accent flex items-center gap-2">❄️ Book AC Service</button><button onclick="scrollToSvcs()" class="bg-white/12 backdrop-blur-sm border border-white/25 text-white font-bold px-5 py-2.5 rounded-xl text-sm transition-all hover:bg-white/20">View All Services</button></div>
+    </div></div>
+  </div>
+  <div id="slide2" class="hero-slide">
+    <img src="https://images.unsplash.com/photo-1560066984-138daaa4e5b4?w=1600&q=85" class="w-full h-full object-cover object-top" loading="lazy" alt="Salon"/>
+    <div class="absolute inset-0 bg-gradient-to-r from-slate2-900/88 via-slate2-900/60 to-transparent"></div>
+    <div class="absolute inset-0 flex items-center"><div class="max-w-7xl mx-auto px-5 md:px-10 w-full slide-content">
+      <div class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-1.5 text-white/90 text-xs font-bold tracking-widest uppercase mb-3"><span class="w-2 h-2 bg-pink-400 rounded-full animate-pulse-dot"></span>Top Rated Stylists</div>
+      <h1 class="font-display text-2xl md:text-3xl font-bold text-white leading-tight mb-3 max-w-xl">Salon &<br/><span class="text-pink-400">Beauty</span> at Home</h1>
+      <p class="text-white/65 text-sm mb-5 max-w-md leading-relaxed">Hair, skin, waxing, threading & spa treatments. Professional stylists at your doorstep.</p>
+      <div class="flex flex-wrap gap-3"><button onclick="openBooking('salon')" class="bg-pink-500 hover:bg-pink-400 text-white font-bold px-5 py-2.5 rounded-xl text-sm transition-all hover:-translate-y-1 flex items-center gap-2">💇 Book Salon</button><button onclick="scrollToSvcs()" class="bg-white/12 backdrop-blur-sm border border-white/25 text-white font-bold px-5 py-2.5 rounded-xl text-sm transition-all hover:bg-white/20">Browse Services</button></div>
+    </div></div>
+  </div>
+  <div id="slide3" class="hero-slide">
+    <img src="https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=1600&q=85" class="w-full h-full object-cover" loading="lazy" alt="Furniture"/>
+    <div class="absolute inset-0 bg-gradient-to-r from-slate2-900/88 via-slate2-900/60 to-transparent"></div>
+    <div class="absolute inset-0 flex items-center"><div class="max-w-7xl mx-auto px-5 md:px-10 w-full slide-content">
+      <div class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-1.5 text-white/90 text-xs font-bold tracking-widest uppercase mb-3"><span class="w-2 h-2 bg-yellow-400 rounded-full animate-pulse-dot"></span>Certified Furniture Experts</div>
+      <h1 class="font-display text-2xl md:text-3xl font-bold text-white leading-tight mb-3 max-w-xl"><span class="text-yellow-400">Furniture</span><br/>Assembly & Repair</h1>
+      <p class="text-white/65 text-sm mb-5 max-w-md leading-relaxed">Assembly, repair, polish & custom interiors. All brands. Same-day available.</p>
+      <div class="flex flex-wrap gap-3"><button onclick="openBooking('furniture-assembly')" class="bg-yellow-500 hover:bg-yellow-400 text-white font-bold px-5 py-2.5 rounded-xl text-sm transition-all hover:-translate-y-1 flex items-center gap-2">🛋️ Book Assembly</button><button onclick="filterCat('furniture')" class="bg-white/12 backdrop-blur-sm border border-white/25 text-white font-bold px-5 py-2.5 rounded-xl text-sm transition-all hover:bg-white/20">View Furniture Services</button></div>
+    </div></div>
+  </div>
+  <div id="slide4" class="hero-slide">
+    <img src="https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?w=1600&q=85" class="w-full h-full object-cover" loading="lazy" alt="Plumbing"/>
+    <div class="absolute inset-0 bg-gradient-to-r from-slate2-900/88 via-slate2-900/60 to-transparent"></div>
+    <div class="absolute inset-0 flex items-center"><div class="max-w-7xl mx-auto px-5 md:px-10 w-full slide-content">
+      <div class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-1.5 text-white/90 text-xs font-bold tracking-widest uppercase mb-3"><span class="w-2 h-2 bg-blue-400 rounded-full animate-pulse-dot"></span>24/7 Emergency Available</div>
+      <h1 class="font-display text-2xl md:text-3xl font-bold text-white leading-tight mb-3 max-w-xl">Plumbing &<br/><span class="text-blue-400">Electrical</span> Fixes</h1>
+      <p class="text-white/65 text-sm mb-5 max-w-md leading-relaxed">Leaks, blockages, wiring, fans & more. Emergency services available round the clock.</p>
+      <div class="flex flex-wrap gap-3"><button onclick="openBooking('plumbing')" class="bg-blue-600 hover:bg-blue-500 text-white font-bold px-5 py-2.5 rounded-xl text-sm transition-all hover:-translate-y-1 flex items-center gap-2">🔧 Book Now</button><button onclick="scrollToSvcs()" class="bg-white/12 backdrop-blur-sm border border-white/25 text-white font-bold px-5 py-2.5 rounded-xl text-sm transition-all hover:bg-white/20">All Services</button></div>
+    </div></div>
+  </div>
+
+  <!-- SLIDER CONTROLS -->
+  <button onclick="prevSlide()" class="absolute left-4 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/15 hover:bg-white/30 backdrop-blur-sm border border-white/25 text-white text-lg flex items-center justify-center transition-all hover:scale-110 z-10">‹</button>
+  <button onclick="nextSlide()" class="absolute right-4 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/15 hover:bg-white/30 backdrop-blur-sm border border-white/25 text-white text-lg flex items-center justify-center transition-all hover:scale-110 z-10">›</button>
+
+  <!-- BOTTOM BAR -->
+  <div class="absolute bottom-0 left-0 right-0 z-10">
+    <div class="max-w-7xl mx-auto px-5 pb-4 flex items-end justify-between gap-3">
+      <!-- SLIDE INDICATORS + PROGRESS -->
+      <div class="flex items-center gap-3">
+        <div id="slideDots" class="flex gap-2"></div>
+        <div class="flex gap-1.5 w-44 hidden md:flex" id="progressBars"></div>
+      </div>
+      <!-- STATS CHIPS -->
+      <div class="flex gap-4 flex-wrap justify-end">
+        <div class="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl px-4 py-2 text-center"><div class="font-display font-bold text-white text-base leading-none">50K+</div><div class="text-white/60 text-xs mt-0.5">Customers</div></div>
+        <div class="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl px-4 py-2 text-center"><div class="font-display font-bold text-white text-base leading-none">2K+</div><div class="text-white/60 text-xs mt-0.5">Experts</div></div>
+        <div class="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl px-4 py-2 text-center"><div class="font-display font-bold text-white text-base leading-none">4.8★</div><div class="text-white/60 text-xs mt-0.5">Rating</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TRUST BAR -->
+<div class="bg-white border-b border-slate2-200 py-3.5 px-5">
+  <div class="max-w-7xl mx-auto flex items-center justify-center gap-6 flex-wrap">
+    <div class="flex items-center gap-2 text-sm font-semibold text-slate2-600"><span class="text-brand-500 text-base">✅</span>Background Verified</div>
+    <div class="flex items-center gap-2 text-sm font-semibold text-slate2-600"><span class="text-base">🛡️</span>Insured Pros</div>
+    <div class="flex items-center gap-2 text-sm font-semibold text-slate2-600"><span class="text-base">💯</span>Satisfaction Guarantee</div>
+    <div class="flex items-center gap-2 text-sm font-semibold text-slate2-600"><span class="text-base">🔄</span>Free Re-service</div>
+    <div class="flex items-center gap-2 text-sm font-semibold text-slate2-600"><span class="text-base">📞</span>24/7 Support</div>
+    <div class="flex items-center gap-2 text-sm font-semibold text-slate2-600"><span class="text-base">💳</span>Secure Payments</div>
+  </div>
+</div>
+
+<!-- SERVICES SECTION -->
+<div class="max-w-7xl mx-auto px-5 py-12" id="svcsSection">
+  <!-- CATEGORY PILLS -->
+  <div class="flex gap-2.5 overflow-x-auto pb-3 mb-8 scrollbar-hide" id="catPills">
+    <button onclick="filterCat('all',this)" class="cat-pill shrink-0 flex items-center gap-2 bg-brand-600 text-white border-2 border-brand-600 rounded-full px-5 py-2.5 text-sm font-bold whitespace-nowrap transition-all">🏠 All Services</button>
+    <button onclick="filterCat('cleaning',this)" class="cat-pill shrink-0 flex items-center gap-2 bg-white border-2 border-slate2-200 hover:border-brand-400 text-slate2-700 rounded-full px-5 py-2.5 text-sm font-bold whitespace-nowrap transition-all">🧹 Cleaning</button>
+    <button onclick="filterCat('ac',this)" class="cat-pill shrink-0 flex items-center gap-2 bg-white border-2 border-slate2-200 hover:border-brand-400 text-slate2-700 rounded-full px-5 py-2.5 text-sm font-bold whitespace-nowrap transition-all">❄️ AC & Appliances</button>
+    <button onclick="filterCat('plumbing',this)" class="cat-pill shrink-0 flex items-center gap-2 bg-white border-2 border-slate2-200 hover:border-brand-400 text-slate2-700 rounded-full px-5 py-2.5 text-sm font-bold whitespace-nowrap transition-all">🔧 Plumbing</button>
+    <button onclick="filterCat('electrical',this)" class="cat-pill shrink-0 flex items-center gap-2 bg-white border-2 border-slate2-200 hover:border-brand-400 text-slate2-700 rounded-full px-5 py-2.5 text-sm font-bold whitespace-nowrap transition-all">⚡ Electrical</button>
+    <button onclick="filterCat('painting',this)" class="cat-pill shrink-0 flex items-center gap-2 bg-white border-2 border-slate2-200 hover:border-brand-400 text-slate2-700 rounded-full px-5 py-2.5 text-sm font-bold whitespace-nowrap transition-all">🎨 Painting</button>
+    <button onclick="filterCat('salon',this)" class="cat-pill shrink-0 flex items-center gap-2 bg-white border-2 border-slate2-200 hover:border-brand-400 text-slate2-700 rounded-full px-5 py-2.5 text-sm font-bold whitespace-nowrap transition-all">💇 Salon & Spa</button>
+    <button onclick="filterCat('pest',this)" class="cat-pill shrink-0 flex items-center gap-2 bg-white border-2 border-slate2-200 hover:border-brand-400 text-slate2-700 rounded-full px-5 py-2.5 text-sm font-bold whitespace-nowrap transition-all">🐜 Pest Control</button>
+    <button onclick="filterCat('furniture',this)" class="cat-pill shrink-0 flex items-center gap-2 bg-white border-2 border-slate2-200 hover:border-brand-400 text-slate2-700 rounded-full px-5 py-2.5 text-sm font-bold whitespace-nowrap transition-all">🛋️ Furniture</button>
+    <button onclick="filterCat('carpentry',this)" class="cat-pill shrink-0 flex items-center gap-2 bg-white border-2 border-slate2-200 hover:border-brand-400 text-slate2-700 rounded-full px-5 py-2.5 text-sm font-bold whitespace-nowrap transition-all">🪚 Carpentry</button>
+    <button onclick="filterCat('laundry',this)" class="cat-pill shrink-0 flex items-center gap-2 bg-white border-2 border-slate2-200 hover:border-brand-400 text-slate2-700 rounded-full px-5 py-2.5 text-sm font-bold whitespace-nowrap transition-all">👕 Laundry</button>
+    <button onclick="filterCat('movers',this)" class="cat-pill shrink-0 flex items-center gap-2 bg-white border-2 border-slate2-200 hover:border-brand-400 text-slate2-700 rounded-full px-5 py-2.5 text-sm font-bold whitespace-nowrap transition-all">📦 Movers</button>
+  </div>
+  <!-- SECTION HEADER -->
+  <div class="flex items-end justify-between mb-7">
+    <div><p class="text-xs font-bold text-brand-600 uppercase tracking-widest mb-1.5 flex items-center gap-2"><span class="inline-block w-4 h-0.5 bg-brand-500"></span>Popular Services</p><h2 class="font-display text-3xl md:text-4xl font-bold text-slate2-900">Top <em class="not-italic text-brand-600">Home Services</em></h2></div>
+    <button onclick="showToast('📋 All services page coming soon')" class="hidden md:flex items-center gap-1.5 border-2 border-slate2-200 hover:border-brand-500 hover:text-brand-600 rounded-xl px-4 py-2.5 text-sm font-bold text-slate2-600 transition-all">View All →</button>
+  </div>
+  <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5" id="servicesGrid"></div>
+</div>
+
+<!-- HOW IT WORKS -->
+<div class="bg-gradient-to-br from-brand-700 to-brand-500 py-16 px-5">
+  <div class="max-w-7xl mx-auto">
+    <div class="text-center mb-12">
+      <p class="text-xs font-bold text-brand-200 uppercase tracking-widest mb-2 flex items-center justify-center gap-2"><span class="inline-block w-4 h-0.5 bg-brand-300"></span>Simple Process<span class="inline-block w-4 h-0.5 bg-brand-300"></span></p>
+      <h2 class="font-display text-3xl md:text-4xl font-bold text-white">How <em class="not-italic text-accent-300">ServiceHub</em> Works</h2>
+    </div>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-8 relative">
+      <div class="hidden md:block absolute top-8 left-[18%] right-[18%] h-0.5 bg-white/15"></div>
+      <div class="text-center relative z-10"><div class="w-14 h-14 rounded-2xl bg-white/15 backdrop-blur border border-white/25 flex items-center justify-center text-2xl mx-auto mb-4">📱</div><div class="font-display text-lg font-bold text-white mb-2">Browse</div><div class="text-sm text-brand-100/70 leading-relaxed">Choose from 100+ home services with clear pricing</div></div>
+      <div class="text-center relative z-10"><div class="w-14 h-14 rounded-2xl bg-white/15 backdrop-blur border border-white/25 flex items-center justify-center text-2xl mx-auto mb-4">📅</div><div class="font-display text-lg font-bold text-white mb-2">Schedule</div><div class="text-sm text-brand-100/70 leading-relaxed">Pick date, time & preferred professional</div></div>
+      <div class="text-center relative z-10"><div class="w-14 h-14 rounded-2xl bg-white/15 backdrop-blur border border-white/25 flex items-center justify-center text-2xl mx-auto mb-4">🏠</div><div class="font-display text-lg font-bold text-white mb-2">We Arrive</div><div class="text-sm text-brand-100/70 leading-relaxed">Verified expert arrives on time at your door</div></div>
+      <div class="text-center relative z-10"><div class="w-14 h-14 rounded-2xl bg-white/15 backdrop-blur border border-white/25 flex items-center justify-center text-2xl mx-auto mb-4">⭐</div><div class="font-display text-lg font-bold text-white mb-2">Rate & Pay</div><div class="text-sm text-brand-100/70 leading-relaxed">Pay securely and share your feedback</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- TESTIMONIALS -->
+<div class="bg-slate2-50 py-16 px-5">
+  <div class="max-w-7xl mx-auto">
+    <div class="text-center mb-10">
+      <p class="text-xs font-bold text-brand-600 uppercase tracking-widest mb-2 flex items-center justify-center gap-2"><span class="inline-block w-4 h-0.5 bg-brand-500"></span>Reviews<span class="inline-block w-4 h-0.5 bg-brand-500"></span></p>
+      <h2 class="font-display text-3xl md:text-4xl font-bold text-slate2-900">What Customers <em class="not-italic text-brand-600">Say</em></h2>
+    </div>
+    <div class="grid md:grid-cols-3 gap-5" id="testiGrid"></div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="bg-slate2-900 pt-14 pb-8 px-5">
+  <div class="max-w-7xl mx-auto">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mb-10">
+      <div class="col-span-2 md:col-span-1">
+        <div class="font-display text-2xl font-bold text-white mb-3">Service<span class="text-brand-400">Hub</span></div>
+        <p class="text-sm text-slate2-400 leading-relaxed mb-4 max-w-52">Professional home services delivered to your door. Trusted, verified, and always on time.</p>
+        <div class="flex gap-2"><button onclick="showToast('📸 Instagram')" class="w-9 h-9 rounded-lg bg-white/8 border border-white/12 flex items-center justify-center text-base hover:bg-white/18 transition-all">📸</button><button onclick="showToast('👍 Facebook')" class="w-9 h-9 rounded-lg bg-white/8 border border-white/12 flex items-center justify-center text-base hover:bg-white/18 transition-all">👍</button><button onclick="showToast('🐦 Twitter')" class="w-9 h-9 rounded-lg bg-white/8 border border-white/12 flex items-center justify-center text-base hover:bg-white/18 transition-all">🐦</button></div>
+      </div>
+      <div><h4 class="text-xs font-bold text-slate2-500 uppercase tracking-widest mb-4">Services</h4><ul class="space-y-2.5 text-sm text-slate2-400">[['Home Cleaning','cleaning'],['AC Repair','ac'],['Plumbing','plumbing'],['Painting','painting'],['Furniture','furniture-assembly'],['Pest Control','pest']].map(([n,id])=>`<li><a href="#" onclick="openBooking('${id}')" class="hover:text-brand-400 transition-colors">${n}</a></li>`).join('')</ul></div>
+      <div><h4 class="text-xs font-bold text-slate2-500 uppercase tracking-widest mb-4">Company</h4><ul class="space-y-2.5 text-sm text-slate2-400"><li><a href="#" onclick="showToast('About Us')" class="hover:text-brand-400 transition-colors">About Us</a></li><li><a href="#" onclick="showToast('Careers')" class="hover:text-brand-400 transition-colors">Careers</a></li><li><a href="#" onclick="showToast('Blog')" class="hover:text-brand-400 transition-colors">Blog</a></li><li><a href="#" onclick="showToast('Partners')" class="hover:text-brand-400 transition-colors">Partners</a></li></ul></div>
+      <div><h4 class="text-xs font-bold text-slate2-500 uppercase tracking-widest mb-4">Support</h4><ul class="space-y-2.5 text-sm text-slate2-400"><li><a href="#" onclick="showToast('Help Center')" class="hover:text-brand-400 transition-colors">Help Center</a></li><li><a href="#" onclick="showToast('Contact Us')" class="hover:text-brand-400 transition-colors">Contact Us</a></li><li><a href="#" onclick="showToast('Privacy Policy')" class="hover:text-brand-400 transition-colors">Privacy Policy</a></li><li><a href="#" onclick="showToast('Terms')" class="hover:text-brand-400 transition-colors">Terms of Service</a></li></ul></div>
+    </div>
+    <div class="border-t border-white/8 pt-6 flex flex-col md:flex-row justify-between items-center gap-3">
+      <p class="text-xs text-slate2-500">© 2025 ServiceHub Technologies Pvt. Ltd. All rights reserved.</p>
+      <div class="flex gap-2"><span class="bg-white/8 border border-white/12 rounded px-2.5 py-1 text-[10px] text-slate2-500 font-bold">VISA</span><span class="bg-white/8 border border-white/12 rounded px-2.5 py-1 text-[10px] text-slate2-500 font-bold">MC</span><span class="bg-white/8 border border-white/12 rounded px-2.5 py-1 text-[10px] text-slate2-500 font-bold">UPI</span><span class="bg-white/8 border border-white/12 rounded px-2.5 py-1 text-[10px] text-slate2-500 font-bold">PAYTM</span></div>
+    </div>
+  </div>
+</footer>
+</div><!-- /mainSite -->
+
+<!-- ===== DASHBOARD ===== -->
+<div id="dashPage" class="hidden min-h-screen bg-slate2-50">
+  <div class="flex">
+    <!-- SIDEBAR -->
+    <aside class="w-64 bg-slate2-900 min-h-[calc(100vh-56px)] sticky top-14 self-start flex flex-col hidden md:flex">
+      <div class="p-6 border-b border-white/10">
+        <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-brand-500 to-accent-500 flex items-center justify-center text-2xl font-bold text-white mb-3" id="dashAv">👤</div>
+        <div class="text-base font-bold text-white" id="dashName">Guest</div>
+        <div class="text-xs text-slate2-400 mt-0.5 truncate" id="dashEmail">—</div>
+        <div class="mt-2 inline-flex items-center gap-1.5 bg-brand-500/15 text-brand-400 border border-brand-500/25 rounded-full px-3 py-1 text-[10px] font-bold">✅ Verified</div>
+      </div>
+      <nav class="p-3 flex-1">
+        <div onclick="showPanel('overview')" class="dash-nav-item flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all text-slate2-400 hover:text-white hover:bg-white/6 font-semibold text-sm border-l-2 border-transparent on"><span class="text-lg">🏠</span>Overview</div>
+        <div onclick="showPanel('orders')" class="dash-nav-item flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all text-slate2-400 hover:text-white hover:bg-white/6 font-semibold text-sm border-l-2 border-transparent"><span class="text-lg">📋</span>My Orders<span class="ml-auto bg-brand-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full" id="ordBadge">0</span></div>
+        <div onclick="showPanel('book')" class="dash-nav-item flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all text-slate2-400 hover:text-white hover:bg-white/6 font-semibold text-sm border-l-2 border-transparent"><span class="text-lg">➕</span>Book Service</div>
+        <div onclick="showPanel('profile')" class="dash-nav-item flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all text-slate2-400 hover:text-white hover:bg-white/6 font-semibold text-sm border-l-2 border-transparent"><span class="text-lg">👤</span>Profile</div>
+        <div onclick="showPanel('addresses')" class="dash-nav-item flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all text-slate2-400 hover:text-white hover:bg-white/6 font-semibold text-sm border-l-2 border-transparent"><span class="text-lg">📍</span>Addresses</div>
+        <div onclick="showPanel('notifications')" class="dash-nav-item flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all text-slate2-400 hover:text-white hover:bg-white/6 font-semibold text-sm border-l-2 border-transparent"><span class="text-lg">🔔</span>Notifications<span class="ml-auto bg-accent-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">3</span></div>
+        <div onclick="showPanel('support')" class="dash-nav-item flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all text-slate2-400 hover:text-white hover:bg-white/6 font-semibold text-sm border-l-2 border-transparent"><span class="text-lg">🛟</span>Help</div>
+        <div onclick="logOut()" class="flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all text-slate2-500 hover:text-red-400 hover:bg-red-500/8 font-semibold text-sm mt-4 border-t border-white/8 pt-4"><span class="text-lg">🚪</span>Logout</div>
+      </nav>
+    </aside>
+    <!-- CONTENT -->
+    <main class="flex-1 p-6 md:p-8 overflow-y-auto">
+      <div id="panel-overview" class="dash-panel">
+        <div class="bg-gradient-to-r from-brand-700 to-brand-500 rounded-2xl p-6 mb-6 relative overflow-hidden">
+          <div class="absolute right-6 bottom-0 text-[80px] opacity-10 leading-none">🏠</div>
+          <div class="font-display text-2xl font-bold text-white mb-1" id="greetName">Welcome back! 👋</div>
+          <div class="text-brand-100/70 text-sm">Here's a summary of your ServiceHub activity</div>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          <div class="bg-white rounded-2xl p-5 border-l-4 border-brand-500 shadow-card"><div class="text-2xl mb-2">📋</div><div class="font-display text-3xl font-bold text-slate2-900" id="st-total">0</div><div class="text-xs text-slate2-400 font-semibold mt-1">Total Orders</div></div>
+          <div class="bg-white rounded-2xl p-5 border-l-4 border-green-500 shadow-card"><div class="text-2xl mb-2">✅</div><div class="font-display text-3xl font-bold text-slate2-900" id="st-done">0</div><div class="text-xs text-slate2-400 font-semibold mt-1">Completed</div></div>
+          <div class="bg-white rounded-2xl p-5 border-l-4 border-accent-500 shadow-card"><div class="text-2xl mb-2">⏳</div><div class="font-display text-3xl font-bold text-slate2-900" id="st-pend">0</div><div class="text-xs text-slate2-400 font-semibold mt-1">Upcoming</div></div>
+          <div class="bg-white rounded-2xl p-5 border-l-4 border-blue-500 shadow-card"><div class="text-2xl mb-2">💰</div><div class="font-display text-2xl font-bold text-slate2-900" id="st-spent">₹0</div><div class="text-xs text-slate2-400 font-semibold mt-1">Total Spent</div></div>
+        </div>
+        <div class="grid md:grid-cols-2 gap-6">
+          <div><div class="font-display text-lg font-bold text-slate2-900 mb-4 flex items-center gap-2"><span>📋</span>Recent Orders</div><div id="recentOrdList"></div></div>
+          <div><div class="font-display text-lg font-bold text-slate2-900 mb-4 flex items-center gap-2"><span>⚡</span>Quick Book</div><div class="grid grid-cols-2 gap-3" id="qbGrid"></div></div>
+        </div>
+      </div>
+      <div id="panel-orders" class="dash-panel hidden"><div class="font-display text-xl font-bold text-slate2-900 mb-5 flex items-center gap-2"><span>📋</span>All Orders</div><div id="allOrdList"></div></div>
+      <div id="panel-book" class="dash-panel hidden"><div class="font-display text-xl font-bold text-slate2-900 mb-5 flex items-center gap-2"><span>🛠️</span>Book a Service</div><div class="grid grid-cols-2 md:grid-cols-3 gap-4" id="dashSrvGrid"></div></div>
+      <div id="panel-profile" class="dash-panel hidden">
+        <div class="font-display text-xl font-bold text-slate2-900 mb-5 flex items-center gap-2"><span>👤</span>My Profile</div>
+        <div class="bg-white rounded-2xl p-6 shadow-card">
+          <div class="flex items-center gap-4 mb-6"><div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-brand-500 to-accent-500 flex items-center justify-center text-3xl font-bold text-white" id="profAvBig">👤</div><div><div class="text-xl font-bold text-slate2-900" id="profNm">—</div><div class="text-sm text-slate2-400 mt-0.5" id="profEm">—</div><div class="mt-2 inline-flex items-center gap-1 bg-green-50 text-green-700 border border-green-200 rounded-full px-3 py-1 text-xs font-bold">✅ Verified</div></div></div>
+          <div class="grid grid-cols-2 gap-4 mb-4"><div><label class="block text-xs font-bold text-slate2-400 uppercase mb-1.5">First Name</label><input id="pf-fn" class="w-full border-2 border-slate2-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-brand-500 transition-colors bg-slate2-50"/></div><div><label class="block text-xs font-bold text-slate2-400 uppercase mb-1.5">Last Name</label><input id="pf-ln" class="w-full border-2 border-slate2-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-brand-500 transition-colors bg-slate2-50"/></div></div>
+          <div class="mb-4"><label class="block text-xs font-bold text-slate2-400 uppercase mb-1.5">Email</label><input id="pf-em" type="email" class="w-full border-2 border-slate2-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-brand-500 transition-colors bg-slate2-50"/></div>
+          <div class="mb-5"><label class="block text-xs font-bold text-slate2-400 uppercase mb-1.5">Phone</label><input id="pf-ph" class="w-full border-2 border-slate2-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-brand-500 transition-colors bg-slate2-50"/></div>
+          <button onclick="saveProfile()" class="bg-brand-600 hover:bg-brand-700 text-white font-bold px-6 py-2.5 rounded-xl text-sm transition-all hover:-translate-y-0.5 hover:shadow-brand">Save Changes</button>
+        </div>
+      </div>
+      <div id="panel-addresses" class="dash-panel hidden"><div class="font-display text-xl font-bold text-slate2-900 mb-5">📍 Addresses</div><div id="addrList"></div></div>
+      <div id="panel-notifications" class="dash-panel hidden"><div class="font-display text-xl font-bold text-slate2-900 mb-5">🔔 Notifications</div><div id="notifList"></div></div>
+      <div id="panel-support" class="dash-panel hidden">
+        <div class="font-display text-xl font-bold text-slate2-900 mb-5">🛟 Help & Support</div>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div onclick="showToast('📞 Calling...')" class="bg-white rounded-2xl p-5 text-center cursor-pointer hover:border-brand-400 border-2 border-slate2-200 transition-all hover:-translate-y-1 shadow-card"><div class="text-3xl mb-3">📞</div><div class="font-bold text-sm text-slate2-800">Call Support</div><div class="text-xs text-slate2-400 mt-1">Toll Free</div></div>
+          <div onclick="showToast('💬 Opening chat...')" class="bg-white rounded-2xl p-5 text-center cursor-pointer hover:border-brand-400 border-2 border-slate2-200 transition-all hover:-translate-y-1 shadow-card"><div class="text-3xl mb-3">💬</div><div class="font-bold text-sm text-slate2-800">Live Chat</div><div class="text-xs text-slate2-400 mt-1">24/7 available</div></div>
+          <div onclick="showToast('📧 Email support...')" class="bg-white rounded-2xl p-5 text-center cursor-pointer hover:border-brand-400 border-2 border-slate2-200 transition-all hover:-translate-y-1 shadow-card"><div class="text-3xl mb-3">📧</div><div class="font-bold text-sm text-slate2-800">Email Us</div><div class="text-xs text-slate2-400 mt-1">support@servicehub.com</div></div>
+          <div onclick="showToast('❓ FAQs...')" class="bg-white rounded-2xl p-5 text-center cursor-pointer hover:border-brand-400 border-2 border-slate2-200 transition-all hover:-translate-y-1 shadow-card"><div class="text-3xl mb-3">❓</div><div class="font-bold text-sm text-slate2-800">FAQs</div><div class="text-xs text-slate2-400 mt-1">Quick answers</div></div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script>
+// ══ DATA ══
+const SERVICES=[
+  {id:'cleaning',cat:'cleaning',name:'Deep Home Cleaning',desc:'Full home sanitization & deep clean',price:'₹999',rating:'4.9',rev:'12.4k',time:'3-4 hrs',tag:'HOT',img:'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=500&q=80',subs:[{n:'Regular (1BHK)',p:999},{n:'Regular (2BHK)',p:1299},{n:'Deep Clean (1BHK)',p:1599},{n:'Deep Clean (2BHK)',p:1999},{n:'Post-Renovation',p:2499}]},
+  {id:'ac',cat:'ac',name:'AC Service & Repair',desc:'Gas refill, filter clean, PCB repair',price:'₹399',rating:'4.8',rev:'9.2k',time:'1-2 hrs',tag:'NEW',img:'https://images.unsplash.com/photo-1621905252507-b35492cc74b4?w=500&q=80',subs:[{n:'AC Service & Check-up',p:399},{n:'Gas Refilling',p:1499},{n:'AC Installation',p:999},{n:'PCB Repair',p:1999},{n:'Deep Cleaning',p:799}]},
+  {id:'plumbing',cat:'plumbing',name:'Plumbing Services',desc:'Pipe leak, tap repair, drain clean',price:'₹299',rating:'4.7',rev:'7.8k',time:'1-2 hrs',tag:null,img:'https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?w=500&q=80',subs:[{n:'Tap Repair',p:299},{n:'Pipe Leak Fix',p:499},{n:'Drain Unblock',p:399},{n:'Tank Cleaning',p:999},{n:'Bathroom Fitting',p:1499}]},
+  {id:'electrical',cat:'electrical',name:'Electrical Services',desc:'Fan install, wiring, switchboard',price:'₹199',rating:'4.8',rev:'11k',time:'1-3 hrs',tag:'HOT',img:'https://images.unsplash.com/photo-1621905252507-b35492cc74b4?w=500&q=80',subs:[{n:'Fan Installation',p:199},{n:'Switchboard Repair',p:299},{n:'Wiring & Fitting',p:499},{n:'MCB Fix',p:249},{n:'Inverter Install',p:799}]},
+  {id:'painting',cat:'painting',name:'Home Painting',desc:'Interior & exterior premium painting',price:'₹3999',rating:'4.9',rev:'6.1k',time:'1-3 days',tag:null,img:'https://images.unsplash.com/photo-1562259929-b4e1fd3aef09?w=500&q=80',subs:[{n:'1 Room Painting',p:3999},{n:'2BHK Full Paint',p:14999},{n:'Texture Painting',p:6999},{n:'Exterior Paint',p:9999},{n:'Wood Polish',p:2499}]},
+  {id:'salon',cat:'salon',name:'Salon & Spa at Home',desc:'Haircut, facial, waxing & spa',price:'₹499',rating:'4.9',rev:'18k',time:'1-2 hrs',tag:'HOT',img:'https://images.unsplash.com/photo-1560066984-138daaa4e5b4?w=500&q=80',subs:[{n:'Ladies Haircut',p:499},{n:'Full Body Waxing',p:799},{n:'Facial & Cleanup',p:699},{n:'Bridal Package',p:4999},{n:'Mani + Pedi',p:899}]},
+  {id:'pest',cat:'pest',name:'Pest Control',desc:'Cockroach, termite, bed bugs',price:'₹599',rating:'4.7',rev:'5.6k',time:'2-3 hrs',tag:'NEW',img:'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=500&q=80',subs:[{n:'Cockroach Control',p:599},{n:'Termite Treatment',p:1999},{n:'Bed Bug Control',p:2499},{n:'Rodent Control',p:1299},{n:'Full Home Pest',p:3499}]},
+  {id:'furniture-assembly',cat:'furniture',name:'Furniture Assembly',desc:'IKEA, Godrej & all brand assembly',price:'₹399',rating:'4.8',rev:'8.7k',time:'1-3 hrs',tag:'HOT',img:'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=500&q=80',subs:[{n:'Single Piece',p:399},{n:'Bed Frame',p:699},{n:'Wardrobe',p:899},{n:'Sofa Setup',p:799},{n:'Full Room (5+ pcs)',p:1999}]},
+  {id:'furniture-repair',cat:'furniture',name:'Furniture Repair & Polish',desc:'Sofa repair, polish & upholstery',price:'₹499',rating:'4.7',rev:'5.3k',time:'2-4 hrs',tag:'NEW',img:'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=500&q=80',subs:[{n:'Sofa Cushion Repair',p:499},{n:'Table/Chair Leg Fix',p:299},{n:'Wood Polish',p:799},{n:'Hinge Replace',p:349},{n:'Full Upholstery',p:2499}]},
+  {id:'sofa-cleaning',cat:'furniture',name:'Sofa & Upholstery Cleaning',desc:'Steam cleaning for sofa & mattress',price:'₹599',rating:'4.9',rev:'11.2k',time:'2-3 hrs',tag:'HOT',img:'https://images.unsplash.com/photo-1540518614846-7eded433c457?w=500&q=80',subs:[{n:'2-Seater Sofa',p:599},{n:'3-Seater Sofa',p:799},{n:'L-Shape Sofa',p:1199},{n:'Mattress Clean',p:699},{n:'Sofa + Mattress',p:1799}]},
+  {id:'furniture-custom',cat:'furniture',name:'Custom Furniture & Interiors',desc:'Modular kitchen, wardrobe, TV unit',price:'₹4999',rating:'4.8',rev:'3.1k',time:'2-7 days',tag:'NEW',img:'https://images.unsplash.com/photo-1618220179428-22790b461013?w=500&q=80',subs:[{n:'TV Unit',p:4999},{n:'Modular Wardrobe',p:14999},{n:'Modular Kitchen',p:24999},{n:'Study Table',p:6999},{n:'False Ceiling',p:12999}]},
+  {id:'carpentry',cat:'carpentry',name:'Carpentry & Woodwork',desc:'Furniture repair, assembly & doors',price:'₹299',rating:'4.6',rev:'4.2k',time:'2-4 hrs',tag:null,img:'https://images.unsplash.com/photo-1504148455328-c376907d081c?w=500&q=80',subs:[{n:'Furniture Assembly',p:299},{n:'Door/Window Repair',p:499},{n:'Cupboard Fix',p:399},{n:'Wood Polish',p:999},{n:'Custom Work',p:1999}]},
+  {id:'laundry',cat:'laundry',name:'Laundry & Dry Clean',desc:'Pickup, wash, fold & deliver',price:'₹199',rating:'4.7',rev:'8.3k',time:'24-48h',tag:null,img:'https://images.unsplash.com/photo-1545173168-9f1947eebb7f?w=500&q=80',subs:[{n:'Wash & Fold 5kg',p:199},{n:'Dry Cleaning',p:249},{n:'Ironing 10 pcs',p:149},{n:'Curtain Cleaning',p:499},{n:'Sofa/Carpet',p:1499}]},
+  {id:'movers',cat:'movers',name:'Packers & Movers',desc:'Local & intercity shifting',price:'₹2999',rating:'4.7',rev:'2.9k',time:'4-8 hrs',tag:null,img:'https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=500&q=80',subs:[{n:'Local 1BHK',p:2999},{n:'Local 2BHK',p:4999},{n:'Intercity',p:9999},{n:'Packing Only',p:1499},{n:'Vehicle Transport',p:4999}]},
+];
+const PROS=[
+  {name:'Amit Sharma',spec:'AC & Electrical',rating:'4.9',jobs:'842',img:'https://images.unsplash.com/photo-1564564321837-a57b7070ac4f?w=200&q=80'},
+  {name:'Priya Verma',spec:'Salon & Beauty',rating:'4.9',jobs:'1,230',img:'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=200&q=80'},
+  {name:'Rajesh Kumar',spec:'Plumbing',rating:'4.8',jobs:'675',img:'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&q=80'},
+  {name:'Sunita Devi',spec:'Deep Cleaning',rating:'4.8',jobs:'923',img:'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=200&q=80'},
+  {name:'Karan Mehta',spec:'Furniture Expert',rating:'4.9',jobs:'512',img:'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=200&q=80'},
+  {name:'Divya Joshi',spec:'Interior Design',rating:'4.8',jobs:'341',img:'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=200&q=80'},
+];
+const TESTIS=[
+  {text:'Amazing deep cleaning! The team was professional, thorough and on time. My house looks brand new!',name:'Anjali Gupta',loc:'Ranchi',svc:'Deep Cleaning',av:'AG',color:'#e53935'},
+  {text:'AC serviced perfectly. Fixed in under an hour. Very transparent pricing, no hidden charges.',name:'Vikram Singh',loc:'Patna',svc:'AC Service',av:'VS',color:'#1565d8'},
+  {text:'Salon at home is a game changer! The stylist was top-notch and punctual. Will definitely rebook.',name:'Meera Nair',loc:'Jamshedpur',svc:'Salon at Home',av:'MN',color:'#7c3aed'},
+  {text:'Had 12 furniture pieces assembled in just 4 hours! Flawless finish on every piece. Highly recommend!',name:'Deepak Agarwal',loc:'Ranchi',svc:'Furniture Assembly',av:'DA',color:'#e17055'},
+  {text:'Sofa deep cleaning removed years of stains and odour in one visit. Absolutely worth every rupee!',name:'Sneha Tiwari',loc:'Dhanbad',svc:'Sofa Cleaning',av:'ST',color:'#00b894'},
+  {text:'Booked painting for my entire flat. Team was clean, efficient and the finish is outstanding!',name:'Rohit Jain',loc:'Bokaro',svc:'Home Painting',av:'RJ',color:'#f97316'},
+];
+const NOTIFS=[
+  {ico:'📋',title:'Order Confirmed',msg:'Your AC Service is confirmed for tomorrow 10:00 AM',time:'2 hrs ago',bg:'#e3f2fd'},
+  {ico:'⭐',title:'Rate Your Service',msg:'How was your Deep Cleaning experience?',time:'1 day ago',bg:'#fff8e1'},
+  {ico:'🎁',title:'Special Offer!',msg:'20% off on next booking. Use SAVE20',time:'2 days ago',bg:'#e8f5e9'},
+];
+
+let currentUser=null,orders=[],selSvc=null,bstepN=1,bdata={sub:null,date:null,time:null,pro:null,addr:{},pay:'upi'},ordCtr=1000;
+
+// ══ HERO SLIDER ══
+let slide=0,slideTimer,progTimer;
+const TOTAL_SLIDES=5;
+function initSlider(){
+  const dots=document.getElementById('slideDots');
+  const bars=document.getElementById('progressBars');
+  dots.innerHTML=[...Array(TOTAL_SLIDES)].map((_,i)=>`<button onclick="goSlide(${i})" id="dot${i}" class="w-2.5 h-2.5 rounded-full transition-all ${i===0?'bg-white w-6':'bg-white/40'}"></button>`).join('');
+  bars.innerHTML=[...Array(TOTAL_SLIDES)].map((_,i)=>`<div class="slide-progress"><div id="bar${i}" class="slide-progress-bar ${i===0?'running':''}"></div></div>`).join('');
+  startTimer();
+}
+function goSlide(n){
+  clearTimeout(slideTimer);clearTimeout(progTimer);
+  document.getElementById('slide'+slide).classList.remove('active');
+  document.getElementById('dot'+slide).className='w-2.5 h-2.5 rounded-full transition-all bg-white/40';
+  document.getElementById('bar'+slide).className='slide-progress-bar';
+  slide=((n%TOTAL_SLIDES)+TOTAL_SLIDES)%TOTAL_SLIDES;
+  document.getElementById('slide'+slide).classList.add('active');
+  document.getElementById('dot'+slide).className='w-6 h-2.5 rounded-full transition-all bg-white';
+  // reset and run progress bar
+  const bar=document.getElementById('bar'+slide);
+  bar.className='slide-progress-bar';
+  void bar.offsetWidth;
+  bar.className='slide-progress-bar running';
+  startTimer();
+}
+function nextSlide(){goSlide(slide+1)}
+function prevSlide(){goSlide(slide-1)}
+function startTimer(){slideTimer=setTimeout(()=>goSlide(slide+1),5000)}
+
+// ══ RENDER ══
+function renderSvcs(filter='all'){
+  const g=document.getElementById('servicesGrid');
+  const list=filter==='all'?SERVICES:SERVICES.filter(s=>s.cat===filter);
+  g.innerHTML=list.map(s=>`
+    <div class="srv-card bg-white rounded-2xl overflow-hidden shadow-card cursor-pointer group border-2 border-transparent hover:border-brand-100">
+      <div class="img-zoom relative h-44 overflow-hidden bg-slate2-100">
+        <img src="${s.img}" alt="${s.name}" loading="lazy" class="w-full h-full object-cover" onerror="this.parentElement.innerHTML='<div class=\\'flex items-center justify-center h-full text-5xl bg-slate2-100\\'>🛠️</div>'"/>
+        ${s.tag?`<div class="absolute top-3 left-3 ${s.tag==='HOT'?'bg-gradient-to-r from-accent-500 to-accent-400':'bg-gradient-to-r from-brand-500 to-brand-400'} text-white text-[10px] font-black px-2.5 py-1 rounded-full tracking-wider">${s.tag}</div>`:''}
+        <div class="absolute bottom-3 left-3 bg-black/60 backdrop-blur-sm text-white text-[10px] font-bold px-2.5 py-1 rounded-full">⏱ ${s.time}</div>
+      </div>
+      <div class="p-4">
+        <div class="font-bold text-slate2-900 text-sm mb-1 leading-tight">${s.name}</div>
+        <div class="text-xs text-slate2-400 mb-3 leading-relaxed line-clamp-2">${s.desc}</div>
+        <div class="flex items-center justify-between mb-3">
+          <div class="font-bold text-brand-700 text-sm">Starting ${s.price}</div>
+          <div class="flex items-center gap-1 text-xs font-bold text-slate2-600"><span class="text-yellow-400">★</span>${s.rating} <span class="text-slate2-300">(${s.rev})</span></div>
+        </div>
+        <button onclick="openBooking('${s.id}')" class="w-full bg-brand-600 hover:bg-brand-500 text-white font-bold py-2.5 rounded-xl text-xs transition-all hover:-translate-y-0.5 hover:shadow-brand">Book Now →</button>
+      </div>
+    </div>`).join('');
+}
+
+function renderTestis(){
+  const g=document.getElementById('testiGrid');if(!g)return;
+  g.innerHTML=TESTIS.map(t=>`
+    <div class="bg-white rounded-2xl p-6 shadow-card hover:-translate-y-1 transition-all relative overflow-hidden">
+      <div class="absolute top-3 left-4 font-display text-6xl text-slate2-100 font-bold leading-none select-none">"</div>
+      <div class="flex gap-1 mb-3 relative">${'★'.repeat(5).split('').map(()=>'<span class="text-yellow-400 text-sm">★</span>').join('')}</div>
+      <p class="text-sm text-slate2-600 italic leading-relaxed mb-5 relative">"${t.text}"</p>
+      <div class="flex items-center gap-3">
+        <div class="w-11 h-11 rounded-full flex items-center justify-center text-base font-bold text-white flex-shrink-0" style="background:${t.color}">${t.av}</div>
+        <div><div class="text-sm font-bold text-slate2-900">${t.name}</div><div class="text-xs text-slate2-400">${t.loc}</div><div class="text-xs text-brand-600 font-semibold mt-0.5">${t.svc}</div></div>
+      </div>
+    </div>`).join('');
+}
+
+function renderDashSrvGrid(){
+  const g=document.getElementById('dashSrvGrid');if(!g)return;
+  g.innerHTML=SERVICES.slice(0,9).map(s=>`
+    <div class="bg-white rounded-xl border-2 border-slate2-200 hover:border-brand-400 overflow-hidden cursor-pointer transition-all hover:-translate-y-1 shadow-card" onclick="openBooking('${s.id}')">
+      <div class="h-28 overflow-hidden"><img src="${s.img}" class="w-full h-full object-cover" loading="lazy" onerror="this.style.display='none'"/></div>
+      <div class="p-3"><div class="text-sm font-bold text-slate2-800 leading-tight">${s.name}</div><div class="text-xs text-brand-600 font-semibold mt-1">${s.price}</div><button class="mt-2 w-full bg-brand-600 text-white text-xs font-bold py-1.5 rounded-lg hover:bg-brand-700 transition-colors">Book</button></div>
+    </div>`).join('');
+}
+
+function renderQbGrid(){
+  const g=document.getElementById('qbGrid');if(!g)return;
+  g.innerHTML=SERVICES.slice(0,6).map(s=>`
+    <div onclick="openBooking('${s.id}')" class="bg-white rounded-xl p-4 border-2 border-slate2-200 hover:border-brand-400 cursor-pointer transition-all hover:-translate-y-0.5 shadow-card">
+      <div class="text-2xl mb-2">🔧</div>
+      <div class="text-sm font-bold text-slate2-800 leading-tight">${s.name.split(' ').slice(0,2).join(' ')}</div>
+      <div class="text-xs text-brand-600 mt-1 font-semibold">${s.price}</div>
+    </div>`).join('');
+}
+
+// ══ FILTER ══
+function filterCat(cat,el){
+  document.querySelectorAll('.cat-pill').forEach(p=>{p.classList.remove('bg-brand-600','text-white','border-brand-600');p.classList.add('bg-white','text-slate2-700','border-slate2-200')});
+  if(el){el.classList.add('bg-brand-600','text-white','border-brand-600');el.classList.remove('bg-white','text-slate2-700','border-slate2-200')}
+  renderSvcs(cat);
+  scrollToSvcs();
+}
+function scrollToSvcs(){document.getElementById('svcsSection')?.scrollIntoView({behavior:'smooth',block:'start'})}
+
+// ══ AUTH ══
+function openAuth(){if(currentUser){goToDash();return;}openModal('authModal')}
+function switchTab(tab){
+  document.getElementById('form-login').classList.toggle('hidden',tab!=='login');
+  document.getElementById('form-signup').classList.toggle('hidden',tab==='login');
+  document.getElementById('tab-login').className=`flex-1 py-2 rounded-lg text-sm font-bold transition-all ${tab==='login'?'bg-white text-slate2-900 shadow-card':'text-slate2-400'}`;
+  document.getElementById('tab-signup').className=`flex-1 py-2 rounded-lg text-sm font-bold transition-all ${tab==='signup'?'bg-white text-slate2-900 shadow-card':'text-slate2-400'}`;
+}
+function doLogin(){
+  const em=document.getElementById('li-email').value.trim(),pw=document.getElementById('li-pass').value.trim();
+  if(!em||!em.includes('@')){showToast('📧 Enter valid email');return}
+  if(pw.length<3){showToast('🔑 Enter password');return}
+  const nm=em.split('@')[0].replace(/[._]/g,' ').split(' ').map(w=>w[0].toUpperCase()+w.slice(1)).join(' ');
+  loginOk(nm,em);
+}
+function doSignup(){
+  const fn=document.getElementById('su-fn').value.trim(),em=document.getElementById('su-email').value.trim(),ph=document.getElementById('su-ph').value.trim(),pw=document.getElementById('su-pw').value.trim();
+  if(!fn){showToast('👤 Enter first name');return}
+  if(!em||!em.includes('@')){showToast('📧 Enter valid email');return}
+  if(ph.length!==10){showToast('📱 Enter 10-digit phone');return}
+  if(pw.length<6){showToast('🔑 Password min 6 chars');return}
+  loginOk(fn+' '+(document.getElementById('su-ln').value.trim()),em,ph);
+}
+function doGoogleLogin(){loginOk('Google User','user@gmail.com')}
+function loginOk(name,email,phone=''){
+  currentUser={name,email,phone,init:name.split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase()};
+  document.getElementById('acctIco').textContent='😊';
+  document.getElementById('acctLbl').textContent=name.split(' ')[0];
+  closeModal('authModal');showToast('🎉 Welcome, '+name.split(' ')[0]+'!');
+  updDash();
+}
+function logOut(){currentUser=null;document.getElementById('acctIco').textContent='👤';document.getElementById('acctLbl').textContent='Account';showMain();showToast('👋 Logged out')}
+
+// ══ BOOKING ══
+function openBooking(id){
+  if(!currentUser){openModal('authModal');showToast('🔐 Sign in to book');return}
+  selSvc=SERVICES.find(s=>s.id===id);if(!selSvc)return;
+  bstepN=1;bdata={sub:null,date:null,time:null,pro:null,addr:{},pay:'upi'};
+  document.getElementById('bookTitle').textContent=selSvc.name;
+  document.getElementById('bookSub').textContent='Starting '+selSvc.price;
+  buildSubSvcs();buildDates();buildTimes();buildPros();buildStepsBar();
+  document.querySelectorAll('.book-step').forEach(e=>e.classList.add('hidden'));
+  document.getElementById('bstep1').classList.remove('hidden');
+  openModal('bookModal');
+}
+function openBookingQuick(){if(!currentUser){openModal('authModal');return}openBooking(SERVICES[0].id)}
+function buildSubSvcs(){
+  document.getElementById('subServiceOpts').innerHTML=selSvc.subs.map((s,i)=>`
+    <div id="so${i}" onclick="selSub(${i},'${s.n}',${s.p})" class="flex items-center gap-3 p-3.5 border-2 ${i===0?'border-brand-500 bg-brand-50':'border-slate2-200 hover:border-brand-400'} rounded-xl cursor-pointer transition-all">
+      <div class="w-9 h-9 rounded-lg bg-slate2-100 flex items-center justify-center text-lg flex-shrink-0">🔧</div>
+      <div><div class="text-sm font-bold text-slate2-800">${s.n}</div><div class="text-xs text-slate2-400 mt-0.5">₹${s.p}</div></div>
+    </div>`).join('');
+  bdata.sub={name:selSvc.subs[0].n,price:selSvc.subs[0].p};
+}
+function selSub(i,name,price){
+  document.querySelectorAll('[id^="so"]').forEach(e=>{e.classList.remove('border-brand-500','bg-brand-50');e.classList.add('border-slate2-200')});
+  document.getElementById('so'+i).classList.add('border-brand-500','bg-brand-50');document.getElementById('so'+i).classList.remove('border-slate2-200');
+  bdata.sub={name,price};
+}
+function buildDates(){
+  const today=new Date(),ds=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],ms=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  let h='';
+  for(let i=1;i<=8;i++){const d=new Date(today);d.setDate(today.getDate()+i);h+=`<div id="dd${i}" onclick="selDate(${i},'${d.toLocaleDateString('en-IN')}')" class="text-center py-2.5 px-1 border-2 ${i===1?'border-brand-500 bg-brand-50':'border-slate2-200 hover:border-brand-400'} rounded-xl cursor-pointer transition-all"><div class="text-[10px] font-bold text-slate2-400 uppercase">${ds[d.getDay()]}</div><div class="font-display text-lg font-bold text-slate2-900">${d.getDate()}</div><div class="text-[10px] text-slate2-400">${ms[d.getMonth()]}</div></div>`;}
+  document.getElementById('dateGrid').innerHTML=h;
+  const d1=new Date(today);d1.setDate(today.getDate()+1);bdata.date=d1.toLocaleDateString('en-IN');
+}
+function selDate(i,ds){
+  document.querySelectorAll('[id^="dd"]').forEach(e=>{e.classList.remove('border-brand-500','bg-brand-50');e.classList.add('border-slate2-200')});
+  document.getElementById('dd'+i).classList.add('border-brand-500','bg-brand-50');document.getElementById('dd'+i).classList.remove('border-slate2-200');
+  bdata.date=ds;
+}
+function buildTimes(){
+  const times=['8:00 AM','9:00 AM','10:00 AM','11:00 AM','12:00 PM','2:00 PM','3:00 PM','4:00 PM','5:00 PM','6:00 PM','7:00 PM','8:00 PM'],busy=[0,1];
+  document.getElementById('timeGrid').innerHTML=times.map((t,i)=>`<div id="td${i}" onclick="${busy.includes(i)?'showToast(\'Slot unavailable\')':'selTime('+i+',\''+t+'\')'}" class="text-center py-2 border-2 ${i===2?'border-brand-500 bg-brand-50':busy.includes(i)?'border-slate2-100 bg-slate2-50 opacity-40 cursor-not-allowed':'border-slate2-200 hover:border-brand-400 cursor-pointer'} rounded-xl text-xs font-bold text-slate2-700 transition-all">${t}${busy.includes(i)?'<div class="text-[9px] opacity-60 mt-0.5">Booked</div>':''}</div>`).join('');
+  bdata.time='10:00 AM';
+}
+function selTime(i,t){
+  document.querySelectorAll('[id^="td"]').forEach(e=>{if(!e.classList.contains('opacity-40')){e.classList.remove('border-brand-500','bg-brand-50');e.classList.add('border-slate2-200')}});
+  document.getElementById('td'+i).classList.add('border-brand-500','bg-brand-50');document.getElementById('td'+i).classList.remove('border-slate2-200');
+  bdata.time=t;
+}
+function buildPros(){
+  document.getElementById('proGrid').innerHTML=PROS.slice(0,4).map((p,i)=>`
+    <div id="pg${i}" onclick="selPro(${i},'${p.name}')" class="relative border-2 ${i===0?'border-brand-500 bg-brand-50':'border-slate2-200 hover:border-brand-400'} rounded-xl p-4 cursor-pointer transition-all text-center">
+      ${i===0?'<div class="absolute top-2 right-2 bg-brand-500 text-white text-[9px] font-black px-2 py-0.5 rounded-full">Top Pick</div>':''}
+      <img src="${p.img}" class="w-14 h-14 rounded-full object-cover mx-auto mb-2 border-2 border-slate2-200" onerror="this.style.display='none'"/>
+      <div class="text-sm font-bold text-slate2-900">${p.name}</div>
+      <div class="text-xs text-brand-600 font-semibold">${p.spec}</div>
+      <div class="text-xs text-slate2-400 mt-1">⭐ ${p.rating} · ${p.jobs} jobs</div>
+    </div>`).join('');
+  bdata.pro=PROS[0].name;
+}
+function selPro(i,name){
+  document.querySelectorAll('[id^="pg"]').forEach(e=>{e.classList.remove('border-brand-500','bg-brand-50');e.classList.add('border-slate2-200')});
+  document.getElementById('pg'+i).classList.add('border-brand-500','bg-brand-50');document.getElementById('pg'+i).classList.remove('border-slate2-200');
+  bdata.pro=name;
+}
+function selPay(type){
+  document.querySelectorAll('.pay-opt').forEach(e=>{e.classList.remove('border-brand-500','bg-brand-50');e.classList.add('border-slate2-200')});
+  document.getElementById('pay-'+type).classList.add('border-brand-500','bg-brand-50');document.getElementById('pay-'+type).classList.remove('border-slate2-200');
+  bdata.pay=type;
+}
+function buildStepsBar(){
+  const labels=['Service','Schedule','Expert','Address','Payment'];
+  document.getElementById('stepsBar').innerHTML=labels.map((l,i)=>`
+    <div class="flex items-center flex-1 ${i<labels.length-1?'':''}">
+      <div class="flex flex-col items-center gap-1 relative z-10" id="bsp${i+1}">
+        <div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${i===0?'bg-brand-600 text-white':'bg-slate2-200 text-slate2-500'} transition-all">${i+1}</div>
+        <div class="text-[10px] font-bold ${i===0?'text-brand-600':'text-slate2-400'} whitespace-nowrap">${l}</div>
+      </div>
+      ${i<labels.length-1?'<div class="flex-1 h-0.5 bg-slate2-200 mx-1 mb-4" id="bsl'+i+'"></div>':''}
+    </div>`).join('');
+}
+function updStepsBar(current){
+  for(let i=1;i<=5;i++){
+    const sp=document.getElementById('bsp'+i);if(!sp)continue;
+    const circle=sp.querySelector('div:first-child'),label=sp.querySelector('div:last-child');
+    if(i<current){circle.className='w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold bg-brand-500 text-white transition-all';label.className='text-[10px] font-bold text-brand-500 whitespace-nowrap';circle.textContent='✓'}
+    else if(i===current){circle.className='w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold bg-brand-600 text-white transition-all';label.className='text-[10px] font-bold text-brand-600 whitespace-nowrap';circle.textContent=i}
+    else{circle.className='w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold bg-slate2-200 text-slate2-400 transition-all';label.className='text-[10px] font-bold text-slate2-400 whitespace-nowrap';circle.textContent=i}
+    if(i<5){const line=document.getElementById('bsl'+(i-1));if(line)line.className=`flex-1 h-0.5 mx-1 mb-4 transition-all ${i<current?'bg-brand-500':'bg-slate2-200'}`}
+  }
+}
+function bNext(step){
+  if(step===4){
+    const n=document.getElementById('a-name').value.trim(),ph=document.getElementById('a-ph').value.trim(),pin=document.getElementById('a-pin').value.trim(),flat=document.getElementById('a-flat').value.trim();
+    if(!n){showToast('👤 Enter name');return}if(ph.length<10){showToast('📱 Enter phone');return}if(pin.length!==6){showToast('📮 Enter 6-digit pincode');return}if(!flat){showToast('🏠 Enter flat no.');return}
+    bdata.addr={name:n,phone:ph,pin,flat,city:document.getElementById('a-city').value||'Ranchi'};
+  }
+  goBstep(step+1);if(step===4)buildSummary();
+}
+function bPrev(step){goBstep(step-1)}
+function goBstep(n){
+  document.querySelectorAll('.book-step').forEach(e=>e.classList.add('hidden'));
+  document.getElementById('bstep'+n).classList.remove('hidden');
+  bstepN=n;updStepsBar(n);
+}
+function buildSummary(){
+  const price=bdata.sub?.price||0,conv=Math.round(price*.05),total=price+conv;
+  document.getElementById('bookSummary').innerHTML=`
+    <div class="space-y-2">
+      <div class="flex justify-between text-sm"><span class="font-bold text-slate2-800">${selSvc.name}</span></div>
+      <div class="flex justify-between text-sm"><span class="text-slate2-500">${bdata.sub?.name}</span><span class="font-semibold">₹${price}</span></div>
+      <div class="flex justify-between text-sm"><span class="text-slate2-500">📅 ${bdata.date} · ⏰ ${bdata.time}</span></div>
+      <div class="flex justify-between text-sm"><span class="text-slate2-500">👷 ${bdata.pro}</span></div>
+      <div class="flex justify-between text-sm"><span class="text-slate2-500">📍 ${bdata.addr.city||'Your address'}</span></div>
+      <div class="flex justify-between text-sm border-t border-slate2-200 pt-2 mt-1"><span class="text-slate2-400">Convenience fee</span><span class="text-slate2-400">₹${conv}</span></div>
+      <div class="flex justify-between font-bold text-base border-t border-slate2-200 pt-2"><span>Total</span><span class="text-brand-600">₹${total}</span></div>
+    </div>`;
+  return total;
+}
+function placeOrder(){
+  if(!selSvc)return;
+  const total=buildSummary();ordCtr++;
+  const oid='#SH'+ordCtr;
+  document.getElementById('orderIdDisplay').textContent=oid;
+  orders.unshift({id:oid,service:selSvc.name,sub:bdata.sub?.name,date:bdata.date,time:bdata.time,pro:bdata.pro,price:total,status:'confirmed',img:selSvc.img,createdAt:new Date().toLocaleDateString('en-IN')});
+  updDash();goBstep(6);showToast('🎉 Order '+oid+' placed!');
+}
+function closeAndDash(){closeModal('bookModal');goToDash('orders')}
+
+// ══ DASHBOARD ══
+function goToDash(panel='overview'){
+  if(!currentUser){openModal('authModal');return}
+  document.getElementById('mainSite').classList.add('hidden');
+  document.getElementById('dashPage').classList.remove('hidden');
+  updDash();showPanel(panel);window.scrollTo({top:0,behavior:'smooth'});
+}
+function showMain(){document.getElementById('mainSite').classList.remove('hidden');document.getElementById('dashPage').classList.add('hidden')}
+function showPanel(p){
+  document.querySelectorAll('.dash-panel').forEach(e=>e.classList.add('hidden'));
+  document.getElementById('panel-'+p).classList.remove('hidden');
+  document.querySelectorAll('.dash-nav-item').forEach(e=>e.classList.remove('text-white','bg-white/10','border-brand-500'));
+  document.querySelector(`.dash-nav-item[onclick="showPanel('${p}')"]`)?.classList.add('text-white','bg-white/10','border-l-brand-500');
+  if(p==='orders')renderAllOrders();
+  if(p==='addresses')renderAddresses();
+  if(p==='notifications')renderNotifs();
+  if(p==='book')renderDashSrvGrid();
+}
+function updDash(){
+  if(!currentUser)return;
+  const u=currentUser;
+  ['dashName','profNm'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=u.name});
+  ['dashEmail','profEm'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=u.email});
+  ['dashAv','profAvBig'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=u.init});
+  document.getElementById('greetName').textContent='Welcome back, '+u.name.split(' ')[0]+'! 👋';
+  const [pf,pl]=(u.name+' ').split(' ');
+  document.getElementById('pf-fn').value=pf||'';document.getElementById('pf-ln').value=pl||'';
+  document.getElementById('pf-em').value=u.email;document.getElementById('pf-ph').value=u.phone||'';
+  const done=orders.filter(o=>o.status==='completed').length;
+  const pend=orders.filter(o=>o.status==='confirmed').length;
+  document.getElementById('st-total').textContent=orders.length;
+  document.getElementById('st-done').textContent=done;
+  document.getElementById('st-pend').textContent=pend;
+  document.getElementById('st-spent').textContent='₹'+orders.reduce((s,o)=>s+o.price,0).toLocaleString();
+  document.getElementById('ordBadge').textContent=orders.length;
+  renderRecentOrders();renderQbGrid();
+}
+function ordCard(o){
+  const st={confirmed:'bg-blue-100 text-blue-700',completed:'bg-green-100 text-green-700',pending:'bg-yellow-100 text-yellow-700',cancelled:'bg-red-100 text-red-700'};
+  return `<div class="flex items-center gap-3 bg-white rounded-xl p-4 border-2 border-transparent hover:border-brand-200 shadow-card transition-all cursor-pointer mb-3" onclick="showToast('📋 ${o.id}')">
+    <img src="${o.img}" class="w-12 h-14 rounded-xl object-cover flex-shrink-0 bg-slate2-100" onerror="this.style.display='none'"/>
+    <div class="flex-1 min-w-0"><div class="text-sm font-bold text-slate2-900 truncate">${o.service}</div><div class="text-xs text-slate2-400 mt-0.5">${o.sub||''}</div><div class="text-xs text-slate2-400">${o.date} · ${o.time}</div></div>
+    <div class="text-right flex-shrink-0"><div class="text-sm font-bold text-slate2-900">₹${o.price}</div><div class="text-[10px] font-bold px-2 py-0.5 rounded-full mt-1 ${st[o.status]||st.confirmed}">${o.status}</div>${o.status==='confirmed'?`<button onclick="event.stopPropagation();cancelOrd('${o.id}')" class="text-[10px] text-red-400 hover:text-red-600 font-bold mt-1 block cursor-pointer">Cancel</button>`:''}</div>
+  </div>`;
+}
+function renderRecentOrders(){
+  const el=document.getElementById('recentOrdList');if(!el)return;
+  el.innerHTML=orders.length===0?`<div class="text-center py-8 bg-white rounded-xl"><div class="text-4xl mb-3 opacity-30">📋</div><div class="text-sm font-bold text-slate2-400">No orders yet</div><button onclick="showPanel('book')" class="mt-3 bg-brand-600 text-white text-xs font-bold px-4 py-2 rounded-lg hover:bg-brand-700 transition-colors">+ Book Now</button></div>`:orders.slice(0,3).map(ordCard).join('');
+}
+function renderAllOrders(){const el=document.getElementById('allOrdList');if(!el)return;el.innerHTML=orders.length===0?`<div class="text-center py-16 bg-white rounded-xl"><div class="text-5xl mb-4 opacity-25">📋</div><div class="text-lg font-bold text-slate2-400 mb-2">No Orders Yet</div><div class="text-sm text-slate2-300 mb-5">Book your first service!</div><button onclick="showPanel('book')" class="bg-brand-600 text-white font-bold px-5 py-2.5 rounded-xl text-sm hover:bg-brand-700 transition-all">Book a Service</button></div>`:orders.map(ordCard).join('');}
+function cancelOrd(id){const o=orders.find(x=>x.id===id);if(o){o.status='cancelled';updDash();renderAllOrders();showToast('❌ '+id+' cancelled')}}
+function renderAddresses(){
+  const el=document.getElementById('addrList');if(!el)return;
+  const addrs=orders.filter(o=>o.status!=='cancelled'&&bdata.addr?.city).slice(0,2);
+  el.innerHTML=`<div class="bg-white rounded-2xl p-5 shadow-card"><div class="flex flex-col gap-3">${addrs.length?addrs.map((o,i)=>`<div class="flex items-start gap-3 p-3.5 border-2 ${i===0?'border-brand-400':'border-slate2-200'} rounded-xl"><div class="w-9 h-9 rounded-lg bg-slate2-100 flex items-center justify-center text-base">${i===0?'🏠':'📍'}</div><div><div class="text-[10px] font-black uppercase text-slate2-400 tracking-wider">${i===0?'Home':'Other'}</div><div class="text-sm font-semibold text-slate2-800 mt-0.5">${bdata.addr?.flat||''}, ${bdata.addr?.city||'Ranchi'} - ${bdata.addr?.pin||''}</div>${i===0?'<span class="inline-block mt-1 text-[10px] bg-green-100 text-green-700 font-bold px-2 py-0.5 rounded-full">Primary</span>':''}</div></div>`).join(''):
+  '<div class="text-center py-6 text-slate2-400 text-sm">No addresses saved yet. Complete a booking first.</div>'}</div>
+  <button onclick="showToast('➕ Add address coming soon')" class="mt-3 w-full border-2 border-dashed border-slate2-200 hover:border-brand-400 hover:text-brand-600 rounded-xl py-3 text-sm font-bold text-slate2-400 transition-all">+ Add New Address</button></div>`;
+}
+function renderNotifs(){
+  const el=document.getElementById('notifList');if(!el)return;
+  const all=[...NOTIFS,...orders.map(o=>({ico:'📋',title:'Order '+o.id,msg:`${o.service} on ${o.date} at ${o.time}`,time:o.createdAt,bg:'#e3f2fd'}))];
+  el.innerHTML=all.map(n=>`<div onclick="showToast('🔔 ${n.title}')" class="flex items-start gap-3 bg-white rounded-xl p-4 border-2 border-transparent hover:border-brand-200 shadow-card cursor-pointer transition-all mb-3"><div class="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0" style="background:${n.bg}">${n.ico}</div><div class="flex-1"><div class="text-sm font-bold text-slate2-900">${n.title}</div><div class="text-xs text-slate2-500 mt-0.5 leading-relaxed">${n.msg}</div></div><div class="text-[10px] text-slate2-400 whitespace-nowrap">${n.time}</div></div>`).join('');
+}
+function saveProfile(){
+  if(currentUser){const fn=document.getElementById('pf-fn').value.trim(),ln=document.getElementById('pf-ln').value.trim();if(fn){currentUser.name=(fn+' '+ln).trim();currentUser.init=(fn[0]+(ln[0]||'')).toUpperCase();updDash();showToast('✅ Profile saved!')}}
+}
+
+// ══ SEARCH ══
+function doSearch(){const v=document.getElementById('srchInp').value.trim();if(v)showToast('🔍 Searching "'+v+'"...');else showToast('💡 Type to search')}
+
+// ══ MODAL ══
+function openModal(id){document.getElementById(id).classList.add('open')}
+function closeModal(id){document.getElementById(id).classList.remove('open')}
+document.querySelectorAll('.modal-wrap').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open')}));
+
+// ══ TOAST ══
+let ttimer;
+function showToast(msg){const t=document.getElementById('toast');document.getElementById('toastMsg').textContent=msg;t.classList.add('show');clearTimeout(ttimer);ttimer=setTimeout(()=>t.classList.remove('show'),2700)}
+
+// ══ INIT ══
+initSlider();
+renderSvcs();
+renderTestis();
+
+// Seed demo orders
+setTimeout(()=>{
+  if(currentUser)return;
+  orders=[
+    {id:'#SH1001',service:'Deep Home Cleaning',sub:'Deep Clean 2BHK',date:'15/03/2025',time:'10:00 AM',pro:'Sunita Devi',price:2099,status:'completed',img:'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&q=80',createdAt:'15/03/2025'},
+    {id:'#SH1002',service:'AC Service & Repair',sub:'AC Service & Check-up',date:'20/03/2025',time:'2:00 PM',pro:'Amit Sharma',price:419,status:'confirmed',img:'https://images.unsplash.com/photo-1621905252507-b35492cc74b4?w=300&q=80',createdAt:'18/03/2025'},
+  ];
+},200);
+</script>
+</body>
+</html>
