@@ -2,7 +2,9 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { SERVICES, PROS, TESTIS } from "@/lib/data";
+import { AdminKpiSection } from "@/app/components/AdminKpiSection";
 import { 
   Search, 
   MapPin, 
@@ -334,6 +336,12 @@ export default function Home() {
                 <span className="text-[10px] font-bold text-slate2-500 group-hover:text-brand-600">Orders</span>
               </button>
             </div>
+            <Link
+              href="/admin/dashboard"
+              className="hidden xl:inline-flex rounded-xl border border-slate2-200 px-4 py-2.5 text-sm font-bold text-slate2-700 transition hover:border-brand-500 hover:text-brand-600"
+            >
+              Admin
+            </Link>
             <button onClick={() => openBooking(SERVICES[0].id)} className="bg-brand-600 hover:bg-brand-700 text-white font-bold px-6 py-2.5 rounded-xl text-sm transition-all shadow-sm hover:shadow-brand whitespace-nowrap">
               Book Service
             </button>
@@ -408,6 +416,10 @@ export default function Home() {
                 <span>Secure Payments</span>
               </div>
             </div>
+          </div>
+
+          <div className="max-w-7xl mx-auto px-5 py-10">
+            <AdminKpiSection mode="home" />
           </div>
 
           {/* Services Grid */}
@@ -696,4 +708,3 @@ export default function Home() {
     </div>
   );
 }
-
