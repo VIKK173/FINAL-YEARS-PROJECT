@@ -3,8 +3,9 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useClerk, useUser } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
 import { SERVICES, PROS, TESTIS } from "@/lib/data";
-import { AdminKpiSection } from "@/app/components/AdminKpiSection";
 import { 
   Search, 
   MapPin, 
@@ -41,25 +42,17 @@ import {
 } from "lucide-react";
 
 export default function Home() {
-  const [currentUser, setCurrentUser] = useState<any>(null);
+  const router = useRouter();
+  const { user, isLoaded } = useUser();
+  const { signOut } = useClerk();
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isBookModalOpen, setIsBookModalOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState("login");
   const [activeSlide, setActiveSlide] = useState(0);
   const [selectedCat, setSelectedCat] = useState("all");
   const [toast, setToast] = useState<string | null>(null);
   const [view, setView] = useState("main"); // main or dash
   const [dashPanel, setDashPanel] = useState("overview");
   const [orders, setOrders] = useState<any[]>([]);
-
-  // Auth form states
-  const [liEmail, setLiEmail] = useState("");
-  const [liPass, setLiPass] = useState("");
-  const [suFn, setSuFn] = useState("");
-  const [suLn, setSuLn] = useState("");
-  const [suEmail, setSuEmail] = useState("");
-  const [suPh, setSuPh] = useState("");
-  const [suPw, setSuPw] = useState("");
 
   // Booking states
   const [selSvc, setSelSvc] = useState<any>(null);
@@ -78,6 +71,10 @@ export default function Home() {
     setTimeout(() => setToast(null), 3000);
   };
 
+  const closeAuthModal = () => {
+    setIsAuthModalOpen(false);
+  };
+
   useEffect(() => {
     const timer = setInterval(() => {
       setActiveSlide((prev) => (prev + 1) % 5);
@@ -85,42 +82,52 @@ export default function Home() {
     return () => clearInterval(timer);
   }, []);
 
+  useEffect(() => {
+    console.log("[user-auth-debug]", {
+      isLoaded,
+      isSignedIn: !!user,
+      userId: user?.id ?? null,
+      email: user?.primaryEmailAddress?.emailAddress ?? null,
+      path: typeof window !== "undefined" ? window.location.pathname : null,
+      hash: typeof window !== "undefined" ? window.location.hash : null,
+    });
+  }, [isLoaded, user]);
+
+  const initialsFromName = (name: string) =>
+    name
+      .split(" ")
+      .filter(Boolean)
+      .map((word) => word[0])
+      .join("")
+      .slice(0, 2)
+      .toUpperCase();
+
+  const fullName =
+    user?.fullName?.trim() ||
+    [user?.firstName, user?.lastName].filter(Boolean).join(" ").trim() ||
+    user?.primaryEmailAddress?.emailAddress?.split("@")[0] ||
+    "User";
+  const userEmail = user?.primaryEmailAddress?.emailAddress || "";
+  const currentUser = user
+    ? { name: fullName, email: userEmail, init: initialsFromName(fullName) }
+    : null;
+  const activeView = currentUser ? view : "main";
+  const authModalOpen = isAuthModalOpen && !currentUser;
+
   const openAuth = () => {
     if (currentUser) {
       setView("dash");
       setDashPanel("overview");
     } else {
-      setIsAuthModalOpen(true);
+      console.log("[user-auth-debug] redirecting to /sign-in from openAuth");
+      router.push("/sign-in");
     }
-  };
-
-  const loginOk = (name: string, email: string) => {
-    const user = {
-      name,
-      email,
-      init: name.split(" ").map(w => w[0]).join("").substring(0, 2).toUpperCase()
-    };
-    setCurrentUser(user);
-    setIsAuthModalOpen(false);
-    showToast(`Welcome, ${name.split(" ")[0]}!`);
-  };
-
-  const handleLogin = () => {
-    if (!liEmail.includes("@")) return showToast("Enter valid email");
-    if (liPass.length < 3) return showToast("Enter password");
-    loginOk(liEmail.split("@")[0], liEmail);
-  };
-
-  const handleSignup = () => {
-    if (!suFn) return showToast("Enter first name");
-    if (!suEmail.includes("@")) return showToast("Enter valid email");
-    if (suPh.length !== 10) return showToast("Enter 10-digit phone");
-    loginOk(`${suFn} ${suLn}`, suEmail);
   };
 
   const openBooking = (id: string) => {
     if (!currentUser) {
-      setIsAuthModalOpen(true);
+      console.log("[user-auth-debug] booking blocked: redirecting to /sign-in");
+      router.push("/sign-in");
       showToast("Sign in to book");
       return;
     }
@@ -156,6 +163,13 @@ export default function Home() {
     showToast("Order placed successfully!");
   };
 
+  const handleLogout = async () => {
+    await signOut();
+    setView("main");
+    setDashPanel("overview");
+    showToast("Signed out");
+  };
+
   const filteredServices = selectedCat === "all" ? SERVICES : SERVICES.filter(s => s.cat === selectedCat);
 
   return (
@@ -169,7 +183,7 @@ export default function Home() {
       )}
 
       {/* Auth Modal */}
-      <div className={`modal-wrap ${isAuthModalOpen ? 'open' : ''}`} onClick={() => setIsAuthModalOpen(false)}>
+      <div className={`modal-wrap ${authModalOpen ? 'open' : ''}`} onClick={closeAuthModal}>
         <div className="modal-box bg-white rounded-2xl w-full max-w-md overflow-hidden shadow-2xl relative" onClick={e => e.stopPropagation()}>
           <div className="h-40 relative overflow-hidden">
             <Image src="https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=700&q=80" fill className="object-cover" alt="service"/>
@@ -178,36 +192,23 @@ export default function Home() {
               <div className="text-xs text-white/70 font-semibold tracking-widest uppercase px-4">Home Services at Your Doorstep</div>
             </div>
           </div>
-          <button onClick={() => setIsAuthModalOpen(false)} className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/20 text-white hover:bg-white/40 flex items-center justify-center text-lg transition-all z-10">✕</button>
+          <button onClick={closeAuthModal} className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/20 text-white hover:bg-white/40 flex items-center justify-center text-lg transition-all z-10">✕</button>
           <div className="p-7">
-            <div className="flex bg-slate2-100 rounded-xl p-1 mb-6">
-              <button className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all ${activeTab === 'login' ? 'bg-white text-slate2-900 shadow-card' : 'text-slate2-400'}`} onClick={() => setActiveTab('login')}>Sign In</button>
-              <button className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all ${activeTab === 'signup' ? 'bg-white text-slate2-900 shadow-card' : 'text-slate2-400'}`} onClick={() => setActiveTab('signup')}>Create Account</button>
+            <p className="mb-4 text-sm font-semibold text-slate2-700">Continue with secure user login/signup.</p>
+            <div className="space-y-3">
+              <button
+                onClick={() => router.push("/sign-in")}
+                className="w-full bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-700 hover:to-brand-600 text-white font-bold py-3.5 rounded-xl transition-all hover:shadow-brand text-sm"
+              >
+                Go to Sign In
+              </button>
+              <button
+                onClick={() => router.push("/sign-up")}
+                className="w-full border-2 border-slate2-200 text-slate2-700 font-bold py-3.5 rounded-xl transition-all hover:border-brand-500 hover:text-brand-600 text-sm"
+              >
+                Go to Create Account
+              </button>
             </div>
-            {activeTab === 'login' ? (
-              <div>
-                <div className="mb-4">
-                  <label className="block text-xs font-bold text-slate2-500 uppercase tracking-wider mb-1.5">Email Address</label>
-                  <input value={liEmail} onChange={e => setLiEmail(e.target.value)} type="email" placeholder="you@example.com" className="w-full border-2 border-slate2-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-brand-500 transition-colors bg-slate2-50 focus:bg-white text-slate-800"/>
-                </div>
-                <div className="mb-2">
-                  <label className="block text-xs font-bold text-slate2-500 uppercase tracking-wider mb-1.5">Password</label>
-                  <input value={liPass} onChange={e => setLiPass(e.target.value)} type="password" placeholder="Enter password" className="w-full border-2 border-slate2-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-brand-500 transition-colors bg-slate2-50 focus:bg-white text-slate-800"/>
-                </div>
-                <button onClick={handleLogin} className="w-full bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-700 hover:to-brand-600 text-white font-bold py-3.5 rounded-xl transition-all hover:shadow-brand text-sm mt-4">Sign In</button>
-              </div>
-            ) : (
-              <div>
-                <div className="grid grid-cols-2 gap-3 mb-3">
-                    <input value={suFn} onChange={e => setSuFn(e.target.value)} placeholder="First Name" className="w-full border-2 border-slate2-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-brand-500 bg-slate2-50 text-slate-800"/>
-                    <input value={suLn} onChange={e => setSuLn(e.target.value)} placeholder="Last Name" className="w-full border-2 border-slate2-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-brand-500 bg-slate2-50 text-slate-800"/>
-                </div>
-                <input value={suEmail} onChange={e => setSuEmail(e.target.value)} placeholder="Email" className="w-full border-2 border-slate2-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-brand-500 bg-slate2-50 mb-3 text-slate-800"/>
-                <input value={suPh} onChange={e => setSuPh(e.target.value)} placeholder="Phone" className="w-full border-2 border-slate2-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-brand-500 bg-slate2-50 mb-3 text-slate-800"/>
-                <input value={suPw} onChange={e => setSuPw(e.target.value)} type="password" placeholder="Password" className="w-full border-2 border-slate2-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-brand-500 bg-slate2-50 mb-4 text-slate-800"/>
-                <button onClick={handleSignup} className="w-full bg-gradient-to-r from-brand-600 to-brand-500 text-white font-bold py-3.5 rounded-xl text-sm transition-all">Create Account</button>
-              </div>
-            )}
           </div>
         </div>
       </div>
@@ -317,12 +318,28 @@ export default function Home() {
 
           <div className="flex items-center gap-5">
             <div className="flex items-center gap-4">
-              <button onClick={openAuth} className="flex flex-col items-center gap-1 text-slate2-600 hover:text-brand-600 transition-all group">
-                <div className="p-1.5 rounded-lg group-hover:bg-brand-50 transition-colors">
-                  {currentUser ? <User className="w-5 h-5 text-brand-600" /> : <User className="w-5 h-5" />}
+              {!isLoaded ? (
+                <div className="h-10 w-40 animate-pulse rounded-xl bg-slate2-100" />
+              ) : currentUser ? (
+                <div className="flex items-center gap-2 rounded-xl border border-slate2-200 bg-white px-3 py-2">
+                  <span className="max-w-28 truncate text-[11px] font-bold text-slate2-700 sm:max-w-44 sm:text-xs">
+                    {currentUser.email}
+                  </span>
+                  <button
+                    onClick={handleLogout}
+                    className="rounded-lg bg-slate2-900 px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-white hover:bg-slate2-700 sm:px-2.5"
+                  >
+                    Logout
+                  </button>
                 </div>
-                <span className="text-[10px] font-bold text-slate2-500 group-hover:text-brand-600">Account</span>
-              </button>
+              ) : (
+                <button onClick={openAuth} className="flex flex-col items-center gap-1 text-slate2-600 hover:text-brand-600 transition-all group">
+                  <div className="p-1.5 rounded-lg group-hover:bg-brand-50 transition-colors">
+                    <User className="w-5 h-5" />
+                  </div>
+                  <span className="text-[10px] font-bold text-slate2-500 group-hover:text-brand-600">Account</span>
+                </button>
+              )}
               <button 
                 onClick={() => {
                   if(!currentUser) { setIsAuthModalOpen(true); showToast("Sign in to view orders"); }
@@ -349,7 +366,7 @@ export default function Home() {
         </div>
       </header>
 
-      {view === 'main' ? (
+      {activeView === 'main' ? (
         <main>
           {/* Hero */}
           <section className="relative h-[480px] overflow-hidden bg-slate-900 group">
@@ -416,10 +433,6 @@ export default function Home() {
                 <span>Secure Payments</span>
               </div>
             </div>
-          </div>
-
-          <div className="max-w-7xl mx-auto px-5 py-10">
-            <AdminKpiSection mode="home" />
           </div>
 
           {/* Services Grid */}
@@ -584,7 +597,7 @@ export default function Home() {
                             {p.toUpperCase()}
                         </button>
                     ))}
-                    <button onClick={() => {setCurrentUser(null); setView('main')}} className="w-full text-left px-4 py-3 rounded-xl text-sm font-bold text-red-400 mt-8">LOGOUT</button>
+                    <button onClick={handleLogout} className="w-full text-left px-4 py-3 rounded-xl text-sm font-bold text-red-400 mt-8">LOGOUT</button>
                 </nav>
             </aside>
             <main className="flex-1 p-8 bg-slate2-50 min-h-full">

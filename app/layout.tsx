@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans, Sora } from "next/font/google";
+import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
@@ -27,7 +28,9 @@ export default function RootLayout({
       lang="en"
       className={`${plusJakartaSans.variable} ${sora.variable} h-full antialiased`}
     >
-      <body className={`min-h-full flex flex-col font-sans bg-slate2-50`}>{children}</body>
+      <body className={`min-h-full flex flex-col font-sans bg-slate2-50`}>
+        <ClerkProvider>{children}</ClerkProvider>
+      </body>
     </html>
   );
 }
